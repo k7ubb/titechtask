@@ -102,7 +102,7 @@ function update_t2(xml, tasks, flag_ocw, cb){
 			req.onload = function(){
 				var telm = req.responseXML.getElementsByClassName("aalink");
 				for(var i=0; i<telm.length; i++){
-					if(telm[i].innerHTML.indexOf("https://t2schola.titech.ac.jp/theme/image.php/titech/assign/1618370964/icon") != -1){
+					if(telm[i].href.indexOf("assign") != -1){
 						var skip = false;
 						for(var j=0; j<tasks.length; j++){
 							if(telm[i].href == tasks[j].url){
