@@ -68,3 +68,4 @@ function ready(cb, flag_ocw, flag_t2, xml){
 		cb({t2: flag_t2, ocw: flag_ocw});
 	}
 }
+
