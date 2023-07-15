@@ -20,6 +20,7 @@ chrome.runtime.onMessage.addListener(function(mes, sender, cb){
 				flag_t2 = 1;
 			}
 			else{
+				console.log("t2scholaへのアクセスに失敗");
 				flag_t2 = 2;
 			}
 			// OCW-iのほうも読み込み終わっていたら次の処理へ
@@ -33,7 +34,8 @@ chrome.runtime.onMessage.addListener(function(mes, sender, cb){
 		req_ocw.send();
 		req_ocw.onload = function(){
 			// 認証に失敗していないか
-			if(req_ocw.responseXML.body.innerText.indexOf("TokyoTechPortalからログインしてください。") == -1){
+			if(req_ocw.responseXML.body.innerText.indexOf("TokyoTechPortalからログインしてください。") == -1 && 
+			req_ocw.responseURL != "https://secure.ocw.titech.ac.jp/ocwi/timeout.html"){
 				flag_ocw = 1;
 				// 呼び出し1回で済むのでここでocw_tasksは更新
 				chrome.storage.local.get("ocw_tasks", function(s){
@@ -41,6 +43,7 @@ chrome.runtime.onMessage.addListener(function(mes, sender, cb){
 				});
 			}
 			else{
+				console.log("OCW-iへのアクセスに失敗");
 				flag_ocw = 2;
 			}
 			// T2SCHOLAのほうも読み込み終わっていたら次の処理へ
