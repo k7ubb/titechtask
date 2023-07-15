@@ -89,17 +89,18 @@ function update_t2(xml, tasks, flag_ocw, cb){
 		};
 	}
 	
+	var nth_cource = 0;
 	var task_count = 0;
 	var loaded_count = 0;
 	// 講義の個別ページから課題一覧を取得
 	for(var i=0; i<cource.length; i++){
 		(function(c){
 			var req = new XMLHttpRequest();
-			console.log("読込: " + c.url);
 			req.open("get", c.url);
 			req.responseType = "document";
 			req.send();
 			req.onload = function(){
+				nth_cource++;
 				var telm = req.responseXML.getElementsByClassName("aalink");
 				for(var i=0; i<telm.length; i++){
 					if(telm[i].href.indexOf("assign") != -1){
@@ -158,6 +159,14 @@ function update_t2(xml, tasks, flag_ocw, cb){
 							})(c, telm[i]);
 						}
 					}
+				}
+				if(nth_cource == cource.length && task_count == 0){
+					console.log("T2SCHOLAの課題リストを更新(差分なし)");
+					console.log(tasks);
+					chrome.storage.local.set({"t2_tasks": JSON.stringify(tasks)}, function(){});
+					chrome.storage.local.set({"t2_date": JSON.stringify(Math.floor(new Date().getTime()/1000))}, function(){});
+					cb({t2: 1, ocw: flag_ocw});
+					updateIcon();
 				}
 			};
 		})(cource[i]);
