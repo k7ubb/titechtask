@@ -4,14 +4,13 @@ updateIcon();
 // 外部からの通信で実行される
 chrome.runtime.onMessage.addListener(function(mes, sender, cb){
 	if(mes == "load"){
-		console.log(new Date().toString());
+		console.log("更新: " + new Date().toString());
 		// 0: 未完了 1:成功 2:失敗
 		var flag_t2  = 0;
 		var flag_ocw = 0;
 		
 		// T2SCHOLAのトップページから履修科目一覧を取得
 		var req_t2 = new XMLHttpRequest();
-		console.log("読込: https://t2schola.titech.ac.jp/");
 		req_t2.open("get", "https://t2schola.titech.ac.jp/");
 		req_t2.responseType = "document";
 		req_t2.send();
@@ -29,7 +28,6 @@ chrome.runtime.onMessage.addListener(function(mes, sender, cb){
 		
 		// OCW-iの課題一覧にアクセス
 		var req_ocw = new XMLHttpRequest();
-		console.log("読込: https://secure.ocw.titech.ac.jp/ocwi/index.php?module=Ocwi&action=Subject");
 		req_ocw.open("get", "https://secure.ocw.titech.ac.jp/ocwi/index.php?module=Ocwi&action=Subject");
 		req_ocw.responseType = "document";
 		req_ocw.send();
