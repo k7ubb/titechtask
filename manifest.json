@@ -1,25 +1,14 @@
 {
 	"manifest_version" : 2,
-	"name" : "Titech課題リスト",
-	"version" : "1.0.4",
-	"description": "OCW-iとT2SCHOLAの未提出課題の一覧を表示します",
+	"name" : "T2SCHOLA課題リスト",
+	"version" : "2.0.0",
+	"description": "T2SCHOLAの課題一覧を表示します",
 	"permissions": [
 		"storage",
+		"declarativeNetRequest",
+		"notifications",
 		"https://portal.nap.gsic.titech.ac.jp/*",
-		"https://t2schola.titech.ac.jp/*",
-		"https://secure.ocw.titech.ac.jp/*"
-	],
-	"content_scripts" : [
-		{
-			"matches" : ["https://t2schola.titech.ac.jp/mod/assign/*"],
-			"js" : ["t2monitor.js"],
-			"run_at" : "document_end"
-		},
-		{
-			"matches" : ["https://secure.ocw.titech.ac.jp/ocwi/*"],
-			"js" : ["ocwmonitor.js"],
-			"run_at" : "document_end"
-		}
+		"https://t2schola.titech.ac.jp/*"
 	],
 	"icons": {
 		"256": "icon.png"
@@ -28,6 +17,15 @@
 		"default_popup": "popup/index.htm"
 	},
 	"background": {
-		"scripts": ["function.js", "background.js"]
+		"scripts": ["background.js"]
+	},
+	"declarative_net_request" : {
+		"rule_resources": [
+			{
+				"id": "ruleset_1",
+				"enabled": true,
+				"path": "rule.json"
+			}
+		]
 	}
 }

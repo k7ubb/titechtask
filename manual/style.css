@@ -22,7 +22,7 @@ body{
 	display: block;
 	position: absolute;
 	top: 2px;
-	right: 2px;	/* ヘルプボタンを表示するなら30px */
+	right: 30px;
 	width: 24px;
 	height: 24px;
 	border: 1px solid #779bc8;
@@ -30,7 +30,6 @@ body{
 	background: #ffffff url('reflesh.png') 4px 4px no-repeat;
 }
 
-/*
 .header a#help{
 	display: block;
 	position: absolute;
@@ -48,7 +47,6 @@ body{
 	text-decoration: none;
 	background: #ffffff;
 }
-*/
 
 .header a:hover{
 	background-color: #85c7df !important;
@@ -61,11 +59,11 @@ ul{
 	overflow: hidden;
 }
 
-ul.marked{
+ul.submitted{
 	background: #dbe3e7;
 }
 
-ul.marked + ul{
+ul.submitted + ul{
 	display: none;
 }
 
@@ -144,3 +142,4 @@ li.button span:nth-child(2){
 	font: bold 16px sans-serif;
 	color: #779bc8;
 }
+

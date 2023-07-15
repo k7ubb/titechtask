@@ -1,144 +1,110 @@
-// JSON.parseの例外処理
-function parseJSON(json){
-	try{
-		return JSON.parse(json);
-	}
-	catch(e){
-		return null;
-	}
-}
-
 // UNIX時間をyyyy/m/d(曜) hh:mm形式文字列に変換
 function unix2date(t){
 	var time = new Date(t*1000);
 	return time.toLocaleDateString() + "(" + [ "日", "月", "火", "水", "木", "金", "土" ][time.getDay()] + ") " + time.toLocaleTimeString().substr(0, time.toLocaleTimeString().length - 3);
 }
 
-// 描画処理
-chrome.storage.local.get(["t2_date", "t2_tasks", "ocw_date", "ocw_tasks"], function(s){
-	console.log(s.t2_tasks);
-	// 更新日時の表示
-	var t2_date = (s.t2_date? unix2date(s.t2_date) : "未") + "取得";
-	var ocw_date = (s.ocw_date? unix2date(s.ocw_date) : "未") + "取得";
-	document.getElementById("t2_date").innerHTML = t2_date;
-	document.getElementById("ocw_date").innerHTML = ocw_date;
-	
-	// ステータスメッセージの処理(location.searchを使用)
-	if(location.search){
-		document.getElementById("status").innerHTML = decodeURI(location.search.slice(1));
+
+// 秒数を経過時間文字列に変換
+function sec2elapsed(t){
+	if(t < 60){ return t + "秒前"; }
+	if(t < 60*60){ return Math.floor(t/60) + "分前"; }
+	if(t < 60*60*48){ return Math.floor(t/60/60) + "時間前"; }
+	return Math.floor(t/60/60/24) + "日前";
+}
+
+
+// 課題を表示 第三引数が真だと提出済みを表示
+function drawTasks(tasks, marked, show_marked){
+	var time_now = Math.floor(new Date().getTime()/1000);
+}
+
+
+// 更新ボタンを押した時の処理
+document.getElementById("reflesh").onclick = function(){
+	document.getElementById("date").innerHTML = "更新中…";
+	chrome.runtime.sendMessage("load" ,function(r){
+		if(r.refresh){ location.reload(); }
+		else{
+			document.getElementById("date").innerHTML = r.message;
+		}
+	});
+	return false;
+};
+
+
+/*
+// ヘルプボタンを押した時の処理
+document.getElementById("help").onclick = function(){
+	chrome.tabs.create({url: "/manual/index.htm"});
+};
+*/
+
+
+// 削除済み課題表示ボタンを押した時の処理
+document.getElementById("show_marked").onclick = function(){
+	location.search = "show_marked=true";
+};
+
+
+// データ読込・描画処理
+chrome.storage.local.get(["date", "tasks", "marked"], function(s){
+	var time_now = Math.floor(new Date().getTime()/1000);
+	if(s.date){
+		document.getElementById("date").innerHTML = "更新: " + sec2elapsed(time_now - s.date);
 	}
-	
-	// 更新ボタンを押した時の処理
-	document.getElementById("update_button").onclick = function(){
-		document.getElementById("status").innerHTML = "更新中…";
-		chrome.runtime.sendMessage("load" ,function(r){
-			var i=0;
-			var lt = s.t2_date;
-			if(r){
-				if(r.t2 == 1 && r.ocw == 1){
-					location.search = encodeURI("更新しました");
-				}
-				else if(r.t2 == 1 && r.ocw == 2){
-					location.search = encodeURI("OCW-iを開いてください");
-				}
-				else{
-					location.search = encodeURI("Portalにログインしてください");
-				}
-			}
-		});
-	};
-	
-	// 復元ボタンを押した時の処理
-	document.getElementById("reset_button").onclick = function(){
-		for(var i=0; i<t2_tasks.length; i++){
-			t2_tasks[i].submitted_manual = false;
-		}
-		for(var i=0; i<ocw_tasks.length; i++){
-			ocw_tasks[i].submitted_manual = false;
-		}
-		chrome.storage.local.set({"t2_tasks": JSON.stringify(t2_tasks)}, function(){});
-		chrome.storage.local.set({"ocw_tasks": JSON.stringify(ocw_tasks)}, function(){});
-		chrome.runtime.sendMessage("icon");
-		location.search = "";
-	};
-	
-	// T2とOCWの課題を合わせたリストを作成
-	// 提出済み課題も取り除く
-	var t2_tasks = parseJSON(s.t2_tasks) || [];
-	var ocw_tasks = parseJSON(s.ocw_tasks) || [];
-	var tasks = [];
-	for(var i=0; i<t2_tasks.length; i++){
-		if(!t2_tasks[i].submitted && !t2_tasks[i].submitted_manual){
-			tasks[tasks.length] = t2_tasks[i];
-			tasks[tasks.length-1].source = "T2";
-		}
+	else{
+		document.getElementById("date").innerHTML = "更新ボタンを押してください→";
 	}
-	for(var i=0; i<ocw_tasks.length; i++){
-		if(!ocw_tasks[i].submitted && !ocw_tasks[i].submitted_manual){
-			tasks[tasks.length] = ocw_tasks[i];
-			tasks[tasks.length-1].source = "OCW";
-		}
-	}
-	tasks.sort(function(a,b){ return a.deadline-b.deadline; });
+	tasks = s.tasks? JSON.parse(s.tasks) : [];
+	marked = s.marked? JSON.parse(s.marked) : [];
 	
-	// ここから課題描画
+	document.getElementById("show_marked").firstChild.innerHTML += ("(" + marked.length + ")");
+	
+	var show_marked = (location.search.indexOf("show_marked") != -1);
+	
 	for(var i=0; i<tasks.length; i++){
+		if(!show_marked && marked.indexOf(tasks[i].id) != -1){ continue; }
+		if(show_marked  && marked.indexOf(tasks[i].id) == -1){ continue; } 
 		var li = document.createElement("li");
-		var div = document.createElement("div");
-		div.className = tasks[i].source;
-		div.innerHTML = tasks[i].source;
-		li.appendChild(div);
-		div = document.createElement("div");
-		var span = document.createElement("span");
-		span.innerHTML = tasks[i].title
-		div.appendChild(span);
-		span = document.createElement("span");
-		span.innerHTML = tasks[i].subject + "<br>" + unix2date(tasks[i].deadline);
-		div.appendChild(span);
-		li.appendChild(div);
-		var del = document.createElement("input");
-		del.type = "button";
-		del.value = "削除";
-		li.appendChild(del);
-		var time = Math.floor(new Date().getTime()/1000);
-		if(tasks[i].deadline - time < 0){
-			li.className = "expired";
+		var span1 = document.createElement("span");
+		span1.innerHTML = tasks[i].title;
+		li.appendChild(span1);
+		var span2 = document.createElement("span");
+		if(!show_marked){
+			span2.innerHTML = tasks[i].subject + "<br>" + unix2date(tasks[i].deadline);
 		}
-		(function(i){
+		else{
+			span2.innerHTML = tasks[i].subject + "<br><s>" + unix2date(tasks[i].deadline) + "</s> 提出済";
+		}
+		li.appendChild(span2);
+		var del = document.createElement("a");
+		del.href = "#";
+		del.innerHTML = "×";
+		li.appendChild(del);
+		if(!show_marked && tasks[i].deadline - time_now < 0){ li.className = "expired"; }
+		(function(i, show_marked){
 			del.onclick = function(){
 				event.stopPropagation();
-				if(tasks[i].source == "T2"){
-					for(var j=0; j<t2_tasks.length; j++){
-						if(t2_tasks[j].url == tasks[i].url){
-							t2_tasks[j].submitted_manual = true;
-							chrome.storage.local.set({"t2_tasks": JSON.stringify(t2_tasks)}, function(){});
-							break;
-						}
-					}
+				if(!show_marked){
+					marked[marked.length] = tasks[i].id;
 				}
-				if(tasks[i].source == "OCW"){
-					for(var j=0; j<ocw_tasks.length; j++){
-						if(ocw_tasks[j].url == tasks[i].url){
-							ocw_tasks[j].submitted_manual = true;
-							chrome.storage.local.set({"ocw_tasks": JSON.stringify(ocw_tasks)}, function(){});
-							break;
-						}
-					}
+				else{
+					marked = marked.filter(function(t){return t!=tasks[i].id;});
 				}
+				chrome.storage.local.set({"marked": JSON.stringify(marked)}, function(){});
 				chrome.runtime.sendMessage("icon");
 				location.reload();
 			};
 			li.onclick = function(){
-				chrome.tabs.create({url: tasks[i].url});
+				var url = "https://t2schola.titech.ac.jp/mod/assign/view.php?id=" + tasks[i].cmid;
+				chrome.tabs.create({url: url});
 			};
-		})(i);
+		})(i, show_marked);
 		document.getElementById("tasks").appendChild(li);
 	}
-	if(tasks.length == 0){
-		var li = document.createElement("li");
-		li.className = "notask";
-		li.innerText = "未提出課題はありません。";
-		document.getElementById("tasks").appendChild(li);
+	if(show_marked){
+		document.getElementById("tasks").className = "marked";
 	}
 });
 
