@@ -124,16 +124,17 @@ li input[type="button"]{
 	right: 0;
 	margin: 2px 6px;
 	font-size: 12px;
-	border: 1px solid #eff3f5;
+	font-weight: bold;
+	border: 2px solid #C8CDCC;
 	border-radius: 30px;
-	color: transparent;
-	background: transparent;
+	color: #000;
+	background: #fff;
 }
 
 li input[type="button"]:hover{
-	border: 1px solid #ccdbe0;
-	background: #fff;
-	color: #333;
+	border: 2px solid #000;
+	background: #000;
+	color: #fff;
 }
 
 li.notask{
