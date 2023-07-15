@@ -16,6 +16,7 @@ function unix2date(t){
 
 // 描画処理
 chrome.storage.local.get(["t2_date", "t2_tasks", "ocw_date", "ocw_tasks"], function(s){
+	console.log(s.t2_tasks);
 	// 更新日時の表示
 	var t2_date = (s.t2_date? unix2date(s.t2_date) : "未") + "取得";
 	var ocw_date = (s.ocw_date? unix2date(s.ocw_date) : "未") + "取得";
