@@ -1,71 +1,127 @@
-// 起動時に課題数を表示する
-updateIcon();
-
-// 外部からの通信で実行される
-chrome.runtime.onMessage.addListener(function(mes, sender, cb){
-	if(mes == "load"){
-		console.log("更新: " + new Date().toString());
-		// 0: 未完了 1:成功 2:失敗
-		var flag_t2  = 0;
-		var flag_ocw = 0;
-		
-		// T2SCHOLAのトップページから履修科目一覧を取得
-		var req_t2 = new XMLHttpRequest();
-		req_t2.open("get", "https://t2schola.titech.ac.jp/");
-		req_t2.responseType = "document";
-		req_t2.send();
-		req_t2.onload = function(){
-			// 認証に失敗していないか
-			if(req_t2.responseURL.indexOf("portal.nap.gsic.titech.ac.jp") == -1){
-				flag_t2 = 1;
-			}
-			else{
-				console.log("t2scholaへのアクセスに失敗");
-				flag_t2 = 2;
-			}
-			// OCW-iのほうも読み込み終わっていたら次の処理へ
-			if(flag_ocw){ ready(cb, flag_ocw, flag_t2, req_t2.responseXML); }
-		};
-		
-		// OCW-iの課題一覧にアクセス
-		var req_ocw = new XMLHttpRequest();
-		req_ocw.open("get", "https://secure.ocw.titech.ac.jp/ocwi/index.php?module=Ocwi&action=Subject");
-		req_ocw.responseType = "document";
-		req_ocw.send();
-		req_ocw.onload = function(){
-			// 認証に失敗していないか
-			if(req_ocw.responseXML.body.innerText.indexOf("TokyoTechPortalからログインしてください。") == -1 && 
-			req_ocw.responseURL != "https://secure.ocw.titech.ac.jp/ocwi/timeout.html"){
-				flag_ocw = 1;
-				// 呼び出し1回で済むのでここでocw_tasksは更新
-				chrome.storage.local.get("ocw_tasks", function(s){
-					update_ocw(req_ocw.responseXML, parseJSON(s.ocw_tasks) || []);
-				});
-			}
-			else{
-				console.log("OCW-iへのアクセスに失敗");
-				flag_ocw = 2;
-			}
-			// T2SCHOLAのほうも読み込み終わっていたら次の処理へ
-			if(flag_t2){ ready(cb, flag_ocw, flag_t2, req_t2.responseXML); }
-		};
-		
-		return true;
+// バージョンが更新されていたら通知する
+chrome.storage.local.get("version", function(s){
+	if(s.version && s.version != chrome.runtime.getManifest().version){
+		chrome.notifications.create("NOTFICATION_ID", {
+			type: "basic",
+			iconUrl: "./icon.png",
+			title: chrome.runtime.getManifest().name,
+			message: chrome.runtime.getManifest().version + " 更新しました。詳細はポップアップからご確認ください。",
+			priority: 2
+		});
 	}
+	chrome.storage.local.set({"version": chrome.runtime.getManifest().version}, function(){});
+});
+
+
+chrome.runtime.onMessage.addListener(function(mes, sender, cb){
 	if(mes == "icon"){
 		updateIcon();
 	}
-});
-
-// T2SCHOLAにアクセスできてれば課題読込、そうでなければコールバックを返す
-function ready(cb, flag_ocw, flag_t2, xml){
-	if(flag_t2 == 1){
-		chrome.storage.local.get("t2_tasks", function(s){
-			update_t2(xml, parseJSON(s.t2_tasks) || [], flag_ocw, cb);
+	if(mes == "load"){
+		chrome.storage.local.get(["token", "date", "tasks", "marked"], function(s){
+			if(s.token){
+				var marked = s.marked? JSON.parse(s.marked) : [];
+				loadTasks(cb, s.token, marked);
+			}
+			else{
+				loadTasksAfterUpdateToken(cb);
+			}
 		});
 	}
-	else{
-		cb({t2: flag_t2, ocw: flag_ocw});
+	return true;
+});
+
+
+function updateIcon(){
+	chrome.storage.local.get(["tasks", "marked"], function(s){
+		tasks = s.tasks? JSON.parse(s.tasks) : [];
+		marked = s.marked? JSON.parse(s.marked) : [];
+		chrome.browserAction.setBadgeBackgroundColor({ color: "#6C90C1" });
+		chrome.browserAction.setBadgeText({ text: String(tasks.length - marked.length) });
+	});
+}
+
+function loadTasksAfterUpdateToken(cb){
+	var xhr2 = new XMLHttpRequest();
+	xhr2.open("get", "https://t2schola.titech.ac.jp/admin/tool/mobile/launch.php?service=moodle_mobile_app&passport=14029&urlscheme=mmt2schola");
+	xhr2.responseType = "document";
+	xhr2.send();
+	xhr2.onload = function(){
+		if(xhr2.responseURL.indexOf("portal.nap.gsic.titech.ac.jp") == -1){
+			var href_text = xhr2.responseXML.getElementById("launchapp").href;
+			token = atob(href_text.replace("mmt2schola://token=","")).split(":::")[1];
+			chrome.storage.local.set({"token": token}, function(){});
+			loadTasks(cb, token);
+			console.log("tokenを更新");
+		}
+		else{
+			cb({message: "Portalにログインしてください"});
+		}
+	};
+}
+
+
+function loadTasks(cb, token){
+	var userid = "";
+	var xhr1 = new XMLHttpRequest();
+	xhr1.open("post", "https://t2schola.titech.ac.jp/webservice/rest/server.php?moodlewsrestformat=json&wsfunction=core_webservice_get_site_info", false);
+	xhr1.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+	xhr1.send("wsfunction=core_webservice_get_site_info&wstoken=" + token);
+	var result_json = JSON.parse(xhr1.responseText);
+	if(result_json.errorcode == "invalidtoken"){ loadTasksAfterUpdateToken(cb); }
+	else{ userid = result_json.userid; }
+	
+	var xhr2 = new XMLHttpRequest();
+	xhr2.open("post", "https://t2schola.titech.ac.jp/webservice/rest/server.php?moodlewsrestformat=json&wsfunction=mod_assign_get_assignments", false);
+	xhr2.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+	xhr2.send("wsfunction=mod_assign_get_assignments&wstoken=" + token);
+	var result_json = JSON.parse(xhr2.responseText);
+	var tasks = [];
+	var tasks_check_marked = [];
+	for(var i=0; i<result_json.courses.length; i++){
+		var assignments = result_json.courses[i].assignments;
+		for(var j=0; j<assignments.length; j++){
+			tasks[tasks.length] = {
+				"subject": result_json.courses[i].fullname,
+				"id": assignments[j].id,
+				"cmid": assignments[j].cmid,
+				"title": assignments[j].name,
+				"deadline": assignments[j].duedate
+			};
+			if(marked.indexOf(assignments[j].id) == -1){
+				tasks_check_marked[tasks_check_marked.length] = {
+					"title": assignments[j].name,
+					"id": assignments[j].id,
+					"cmid": assignments[j].cmid
+				};
+			}
+		}
+	}
+	tasks.sort(function(a,b){ return a.deadline-b.deadline; });
+	chrome.storage.local.set({"tasks": JSON.stringify(tasks), "date": JSON.stringify(Math.floor(new Date().getTime()/1000))}, function(){});
+	
+	var tasks_check_marked_count = 0;
+	for(var i=0; i<tasks_check_marked.length; i++){
+		(function(i){
+			var xhr = new XMLHttpRequest();
+			xhr.open("post", "https://t2schola.titech.ac.jp/webservice/rest/server.php?moodlewsrestformat=json&wsfunction=mod_assign_get_submission_status");
+			xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
+			xhr.send("wsfunction=mod_assign_get_submission_status&userid=" + userid + "&assignid=" + tasks_check_marked[i].id + "&wstoken=" + token);
+			xhr.onload = function(){
+				var result_json = JSON.parse(xhr.responseText);
+				if(result_json.lastattempt.submission.plugins[0].type == "file" &&
+				   result_json.lastattempt.submission.plugins[0].fileareas[0].files &&
+				   result_json.lastattempt.submission.plugins[0].fileareas[0].files.length){
+					marked[marked.length] = tasks_check_marked[i].id;
+				}
+				if(++tasks_check_marked_count == tasks_check_marked.length){
+					chrome.storage.local.set({"marked": JSON.stringify(marked)}, function(){});
+					updateIcon();
+					cb({message: "更新しました。", refresh: true});
+				}
+			};
+		})(i);
 	}
 }
 
+updateIcon();
