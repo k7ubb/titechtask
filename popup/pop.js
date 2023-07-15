@@ -33,14 +33,6 @@ document.getElementById("reflesh").onclick = function(){
 };
 
 
-/*
-// ヘルプボタンを押した時の処理
-document.getElementById("help").onclick = function(){
-	chrome.tabs.create({url: "/manual/index.htm"});
-};
-*/
-
-
 // 削除済み課題表示ボタンを押した時の処理
 document.getElementById("show_marked").onclick = function(){
 	location.search = "show_marked=true";

@@ -1,18 +1,3 @@
-// バージョンが更新されていたら通知する
-chrome.storage.local.get("version", function(s){
-	if(s.version && s.version != chrome.runtime.getManifest().version){
-		chrome.notifications.create("NOTFICATION_ID", {
-			type: "basic",
-			iconUrl: "./icon.png",
-			title: chrome.runtime.getManifest().name,
-			message: chrome.runtime.getManifest().version + " 更新しました。詳細はポップアップからご確認ください。",
-			priority: 2
-		});
-	}
-	chrome.storage.local.set({"version": chrome.runtime.getManifest().version}, function(){});
-});
-
-
 chrome.runtime.onMessage.addListener(function(mes, sender, cb){
 	if(mes == "icon"){
 		updateIcon();
@@ -24,7 +9,7 @@ chrome.runtime.onMessage.addListener(function(mes, sender, cb){
 				loadTasks(cb, s.token, marked);
 			}
 			else{
-				loadTasksAfterUpdateToken(cb);
+				loadTasksAfterUpdateToken(cb, marked);
 			}
 		});
 	}
@@ -41,7 +26,7 @@ function updateIcon(){
 	});
 }
 
-function loadTasksAfterUpdateToken(cb){
+function loadTasksAfterUpdateToken(cb, marked){
 	var xhr2 = new XMLHttpRequest();
 	xhr2.open("get", "https://t2schola.titech.ac.jp/admin/tool/mobile/launch.php?service=moodle_mobile_app&passport=14029&urlscheme=mmt2schola");
 	xhr2.responseType = "document";
@@ -51,7 +36,7 @@ function loadTasksAfterUpdateToken(cb){
 			var href_text = xhr2.responseXML.getElementById("launchapp").href;
 			token = atob(href_text.replace("mmt2schola://token=","")).split(":::")[1];
 			chrome.storage.local.set({"token": token}, function(){});
-			loadTasks(cb, token);
+			loadTasks(cb, token, marked);
 			console.log("tokenを更新");
 		}
 		else{
@@ -97,7 +82,7 @@ function loadTasks(cb, token){
 			}
 		}
 	}
-	tasks.sort(function(a,b){ return a.deadline-b.deadline; });
+	tasks.sort(function(a,b){ return a.deadline - b.deadline; });
 	chrome.storage.local.set({"tasks": JSON.stringify(tasks), "date": JSON.stringify(Math.floor(new Date().getTime()/1000))}, function(){});
 	
 	var tasks_check_marked_count = 0;
@@ -107,21 +92,23 @@ function loadTasks(cb, token){
 			xhr.open("post", "https://t2schola.titech.ac.jp/webservice/rest/server.php?moodlewsrestformat=json&wsfunction=mod_assign_get_submission_status");
 			xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
 			xhr.send("wsfunction=mod_assign_get_submission_status&userid=" + userid + "&assignid=" + tasks_check_marked[i].id + "&wstoken=" + token);
-			xhr.onload = function(){
+			xhr.onloadend = function(){
 				var result_json = JSON.parse(xhr.responseText);
-				if(result_json.lastattempt.submission.plugins[0].type == "file" &&
-				   result_json.lastattempt.submission.plugins[0].fileareas[0].files &&
-				   result_json.lastattempt.submission.plugins[0].fileareas[0].files.length){
+				console.log(result_json.lastattempt.submission.status);
+				if(result_json.lastattempt.submission.status == "submitted"){
 					marked[marked.length] = tasks_check_marked[i].id;
-				}
-				if(++tasks_check_marked_count == tasks_check_marked.length){
 					chrome.storage.local.set({"marked": JSON.stringify(marked)}, function(){});
 					updateIcon();
+				}
+				if(++tasks_check_marked_count == tasks_check_marked.length){
 					cb({message: "更新しました。", refresh: true});
 				}
 			};
 		})(i);
 	}
+	setTimeout(function(){
+		cb({message: "更新しました。", refresh: true});
+	}, 5000);
 }
 
 updateIcon();
