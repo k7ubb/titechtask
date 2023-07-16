@@ -7,7 +7,7 @@ function getToken(){
 	if(xhr.responseURL.indexOf("portal.nap.gsic.titech.ac.jp") == -1){
 		let token_unformat = xhr.responseText.match(/"mmt2schola\:\/\/token=(.*)"/)[1];
 		let token = atob(token_unformat).split(":::")[1];
-		chrome.storage.local.set({"token": token}, function(){});
+		chrome.storage.local.set({token: token}, function(){});
 		return token;
 	}
 	else{
@@ -64,7 +64,7 @@ function getWorkshops(token){
 
 
 // t2scholaの課題の提出状況を返す (非同期通信, 読み込み後にonloadfunctionを実行)
-function getAssignSubmission(token, userid, assignmentid, onloadfunction){
+function getAssignmentSubmissionStatus(token, userid, assignmentid, onloadfunction){
 	let xhr = new XMLHttpRequest();
 	xhr.open("post", "https://t2schola.titech.ac.jp/webservice/rest/server.php?moodlewsrestformat=json");
 	xhr.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
