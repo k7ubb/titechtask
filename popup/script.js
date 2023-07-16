@@ -89,12 +89,13 @@ function load(){
 		console.log("mod_workshop_get_workshops_by_courses");
 		[courses, tasks] = loadTasklist(token);
 		drawMessage("更新しました");
+		drawCalender();
 		drawTasks();
 		for(let task of tasks){
 			if(submitted.indexOf(task.id) == -1){
 				(function(assignmentid){
 					console.log("mod_assign_get_submission_status");
-					updateSubmissionStatus(token, userid, assignmentid, function(assignmentid){
+					getAssignmentSubmissionStatus(token, userid, assignmentid, function(assignmentid){
 						if(submitted.indexOf(assignmentid) == -1){
 							submitted.push(assignmentid);
 							chrome.storage.local.set({"submitted": JSON.stringify(submitted)}, function(){});
@@ -122,7 +123,7 @@ chrome.storage.local.get(["token", "courses", "tasks", "submitted", "lastupdate"
 	document.getElementById("reflesh").onclick = load;
 	
 	document.getElementById("help").onclick = function(){
-		chrome.tabs.create({url: "/manual/index.htm"});
+		chrome.tabs.create({url: "https://komekui.xrea.jp/titechtask/"});
 	};
 	
 	document.getElementById("tasks_switch").onclick = function(){
