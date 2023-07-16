@@ -8,19 +8,29 @@
 </head>
 
 <body>
-<iframe scrolling="no" id="iframe" src="https://komekui.xrea.jp/app/embed/titechtask/iframe.cgi?v=2.0.6"></iframe>
-
-<div class="wrap">
 <div class="header">
+<a href="#" class="circle" id="reflesh"></a>
+<a href="#" class="circle" id="help">？</a>
+<a href="#" id="tasks_switch">提出済みの課題を表示</a>
 <p id="date"></p>
-<a href="#" id="reflesh"></a>
 </div>
 
-<ul id="tasks">
-</ul>
-<ul><li class="button" id="show_marked"><span>提出済み</span><span>&gt;</span></li></ul>
-
+<div id="calender">
+<table id="calender_table"></table>
+<div id="calender_courses" class="dragtarget"><div></div></div>
 </div>
-<script type="text/javascript" src="pop.js"></script>
+
+<ul id="tasks"></ul>
+<ul id="tasks_submitted"></ul>
+
+<div id="footer">
+<iframe scrolling="no" id="iframe" src="https://komekui.xrea.jp/ext_embed/embed/?from=t2schola_plus_3.0.0"></iframe>
+</div>
+
+<script type="text/javascript" src="function.js"></script>
+<script type="text/javascript" src="api.js"></script>
+<script type="text/javascript" src="script.js"></script>
+<script type="text/javascript" src="calender.js"></script>
+
 </body>
 </html>

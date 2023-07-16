@@ -1,23 +1,21 @@
 {
-	"manifest_version" : 2,
+	"manifest_version" : 3,
 	"name" : "T2SCHOLA課題リスト",
-	"version" : "2.0.6",
-	"description": "T2SCHOLAの課題一覧を表示します",
+	"version" : "3.0.0",
+	"description": "T2SCHOLAのデータをブラウザに保存して、ログインなしで課題一覧と時間割にアクセスできます。",
 	"permissions": [
 		"storage",
-		"declarativeNetRequest",
+		"declarativeNetRequest"
+	],
+	"host_permissions": [
 		"https://portal.nap.gsic.titech.ac.jp/*",
 		"https://t2schola.titech.ac.jp/*"
 	],
 	"icons": {
 		"256": "icon.png"
 	},
-    "browser_action": {
+    "action": {
 		"default_popup": "popup/index.htm"
-	},
-	"background": {
-        "persistent": false,
-		"scripts": ["background.js"]
 	},
 	"declarative_net_request" : {
 		"rule_resources": [
