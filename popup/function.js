@@ -67,8 +67,8 @@ function formatAssignments(assignments, quizzes, workshops){
 
 
 // 課題の提出状況を確認し、提出済みであればonloadfunctionを実行
-function updateSubmissionStatus(token, userid, assignmentid, onloadfunction){
-	getAssignSubmission(token, userid, assignmentid, function(json){
+function updateAssignmentSubmissionStatus(token, userid, assignmentid, onloadfunction){
+	getAssignmentSubmissionStatus(token, userid, assignmentid, function(json){
 		if(json.lastattempt && json.lastattempt.submission.status == "submitted"){
 			onloadfunction(assignmentid);
 		}
