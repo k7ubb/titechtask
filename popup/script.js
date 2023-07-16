@@ -95,7 +95,7 @@ function load(){
 			if(submitted.indexOf(task.id) == -1){
 				(function(assignmentid){
 					console.log("mod_assign_get_submission_status");
-					getAssignmentSubmissionStatus(token, userid, assignmentid, function(assignmentid){
+					updateAssignmentSubmissionStatus(token, userid, assignmentid, function(assignmentid){
 						if(submitted.indexOf(assignmentid) == -1){
 							submitted.push(assignmentid);
 							chrome.storage.local.set({"submitted": JSON.stringify(submitted)}, function(){});
