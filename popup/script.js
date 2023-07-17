@@ -92,7 +92,7 @@ function load(){
 		drawCalender();
 		drawTasks();
 		for(let task of tasks){
-			if(submitted.indexOf(task.id) == -1){
+			if(task.type == "assignment" && submitted.indexOf(task.id) == -1){
 				(function(assignmentid){
 					console.log("mod_assign_get_submission_status");
 					updateAssignmentSubmissionStatus(token, userid, assignmentid, function(assignmentid){
