@@ -79,7 +79,7 @@ function updateAssignmentSubmissionStatus(token, userid, assignmentid, onloadfun
 // UNIX時間をyyyy/m/d(曜) hh:mm形式文字列に変換
 function unix2date(t){
 	let time = new Date(t * 1000);
-	return time.toLocaleDateString("en-US") + "(" + [ "日", "月", "火", "水", "木", "金", "土" ][time.getDay()] + ") " + time.toLocaleTimeString("jp-JP").substr(0, time.toLocaleTimeString("jp-JP").length - 3);
+	return time.toLocaleDateString("jp-JP") + "(" + [ "日", "月", "火", "水", "木", "金", "土" ][time.getDay()] + ") " + time.toLocaleTimeString("jp-JP").substr(0, time.toLocaleTimeString("jp-JP").length - 3);
 }
 
 
