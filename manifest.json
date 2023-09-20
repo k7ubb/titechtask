@@ -1,7 +1,7 @@
 {
 	"manifest_version" : 3,
 	"name" : "T2SCHOLA課題リスト",
-	"version" : "3.0.5",
+	"version" : "3.0.6",
 	"description": "T2SCHOLAのデータをブラウザに保存して、ログインなしで課題一覧と時間割にアクセスできます。",
 	"permissions": [
 		"storage",
