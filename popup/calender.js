@@ -92,7 +92,7 @@ function drawCalender(){
 		for(let i=0; i<5; i++){
 			let tr = document.createElement("tr");
 			let th = document.createElement("th");
-			th.innerHTML = ["8:50 〜 10:30", "10:45<br>〜<br>12:25", "13:25 〜 15:25", "15:40 〜 17:20", "17:30 〜 19:10"][i];
+			th.innerHTML = ["8:50 〜 10:30", "10:45<br>〜<br>12:25", "13:30 〜 15:10", "15:25 〜 17:05", "17:15 〜 18:55"][i];
 			tr.appendChild(th);
 			for(let j=0; j<5; j++){
 				let td = document.createElement("td");
