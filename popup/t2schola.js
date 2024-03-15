@@ -1,21 +1,65 @@
-// t2scholaのtoken文字列を返す
-// portalへのログインが必要な場合、空文字列を返す
-function getToken(){
-	let xhr = new XMLHttpRequest();
-	xhr.open("get", "https://t2schola.titech.ac.jp/admin/tool/mobile/launch.php?service=moodle_mobile_app&passport=14029&urlscheme=mmt2schola", false);
-	xhr.send();
-	if(xhr.responseURL.indexOf("portal.nap.gsic.titech.ac.jp") == -1){
-		let token_unformat = xhr.responseText.match(/"mmt2schola\:\/\/token=(.*)"/)[1];
-		let token = atob(token_unformat).split(":::")[1];
-		chrome.storage.local.set({token: token}, function(){});
-		return token;
-	}
-	else{
-		return "";
-	}
-}
+const T2Schola = {
+	token: undefined,
+	
+	updateToken: async function() {
+		this.console("T2Schola: updateToken");
+		const response = await fetch("https://t2schola.titech.ac.jp/admin/tool/mobile/launch.php?service=moodle_mobile_app&passport=14029&urlscheme=mmt2schola");
+		if (response.url.match("portal.nap.gsic.titech.ac.jp")) {
+			throw new Error("Tokyo Tech Portalにログインしていません");
+		}
+		const launchapp = new DOMParser().parseFromString(await response.text(), "text/html").getElementById("launchapp");
+		const token_unformat = launchapp.href.match(/^mmt2schola\:\/\/token=(.*)$/)[1];
+		const token = atob(token_unformat).split(":::")[1];
+		this.token = token;
+		chrome.storage.local.set({token});
+	},
+	
+	wsfunction: async function(wsfunction, query) {
+		this.console(`T2Schola: ${wsfunction}`);
+		try {
+			const response = await fetch(`https://t2schola.titech.ac.jp/webservice/rest/server.php?${
+				new URLSearchParams({
+					moodlewsrestformat: "json",
+					wstoken: this.token,
+					wsfunction,
+					...query
+				})
+			}`, {
+				headers: {
+					"Content-Type": "application/x-www-form-urlencoded"
+				}
+			});
+			const result = await response.json();
+			if (result.errorcode === "invalidtoken") {
+				throw new Error(result.errorcode);
+			}
+			return result;
+		} catch(e) {
+			try {
+				await this.updateToken();
+				return this.wsfunction(wsfunction, query);
+			} catch (e) {
+				throw new Error(e);
+			}
+		}
+	},
+		
+	
+	console: function(text) {
+		if (chrome.runtime.id !== "odfihbhakcfillnjihnjhilbpjmhnhml") {
+			console.log(text);
+		}
+	},
+};
 
+/*
+(async () => {
+	T2Schola.token = (await chrome.storage.local.get("token")).token;
+	T2Schola.onload();
+})();
+*/
 
+/*
 // t2scholaのuserID文字列を返す
 // token読み直しが必要な場合、空文字列を返す
 function getUserID(token){
@@ -73,3 +117,4 @@ function getAssignmentSubmissionStatus(token, userid, assignmentid, onloadfuncti
 		onloadfunction(JSON.parse(xhr.responseText));
 	};
 }
+*/
