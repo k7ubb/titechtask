@@ -1,6 +1,7 @@
 const Data = {
 	courses: [],
 	tasks: [],
+	submission: [],
 	
 	getCourseNameById: function(id) {
 		for (let course of this.courses) {
@@ -12,7 +13,6 @@ const Data = {
 	},
 	
 	t2ScholaUpdate: async function() {
-		const userid = (await T2Schola.wsfunction("core_webservice_get_site_info")).userid;
 		this.courses = [];
 		this.tasks = [];
 		(await T2Schola.wsfunction("mod_assign_get_assignments")).courses.forEach((course) => {
@@ -55,5 +55,36 @@ const Data = {
 			courses: this.courses,
 			tasks: this.tasks,
 		});
+	},
+	
+	updateSubmission: async function() {
+		const userid = (await T2Schola.wsfunction("core_webservice_get_site_info")).userid;
+		let i = 0;
+		for (let task of this.tasks) {
+			if (task.type === "assignment" && this.submission.indexOf(task.id) === -1 && ++i < 10){
+				const result = await T2Schola.wsfunction("mod_assign_get_submission_status", {
+					userid,
+					assignid: task.id,
+				});
+				if (result.lastattempt?.submission.status === "submitted") {
+					this.submission.push(task.id);
+				}
+			}
+		}
+		chrome.storage.local.set({ submission: this.submission });
+/*
+		for(let task of tasks){
+			if(task.type == "assignment" && submitted.indexOf(task.id) == -1){
+				(function(assignmentid){
+					console.log("mod_assign_get_submission_status");
+					updateAssignmentSubmissionStatus(token, userid, assignmentid, function(assignmentid){
+						if(submitted.indexOf(assignmentid) == -1){
+							drawTasks();
+						}
+					});
+				})(task.id);
+			}
+		}
+*/
 	},
 };
