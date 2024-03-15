@@ -14,7 +14,7 @@
 	"icons": {
 		"256": "icon.png"
 	},
-    "action": {
+  "action": {
 		"default_popup": "popup/index.htm"
 	},
 	"declarative_net_request" : {

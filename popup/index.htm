@@ -6,16 +6,30 @@
 </head>
 
 <body>
-<button id="upload">upload</button>
-<div id="message"></div>
+<div class="header">
+<a href="#" class="circle" id="reflesh"></a>
+<a href="#" id="tasks_switch">提出済みの課題を表示</a>
+<p id="lastupdate"></p>
+</div>
 
+<div id="calender">
 <!--
-<script type="text/javascript" src="function.js"></script>
-<script type="text/javascript" src="calender.js"></script>
+<table id="calender_table"></table>
+<div id="calender_courses" class="dragtarget"><div></div></div>
 -->
+</div>
+
+<ul id="tasks"></ul>
+<ul id="tasks_submitted"></ul>
+
+<div id="footer">
+<!--<iframe scrolling="no" id="iframe" src="https://titechtask.bb.xrea.jp/embed/?ver=3.0.7"></iframe>-->
+</div>
+
 <script type="text/javascript" src="t2schola.js"></script>
-<script type="text/javascript" src="data.js"></script>
+<script type="text/javascript" src="tasks.js"></script>
 <script type="text/javascript" src="script.js"></script>
+<script type="text/javascript" src="draw.js"></script>
 
 </body>
 </html>

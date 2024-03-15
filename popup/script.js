@@ -1,24 +1,26 @@
 (async () => {
 	T2Schola.token = (await chrome.storage.local.get("token")).token;
-	Data.courses = (await chrome.storage.local.get("courses")).courses || [];
-	Data.tasks = (await chrome.storage.local.get("tasks")).tasks || [];
-	Data.submission = (await chrome.storage.local.get("submission")).submission || [];
-	draw();
+	Tasks.courses = (await chrome.storage.local.get("courses")).courses || [];
+	Tasks.tasks = (await chrome.storage.local.get("tasks")).tasks || [];
+	Tasks.submission = (await chrome.storage.local.get("submission")).submission || [];
+	Tasks.lastupdate = (await chrome.storage.local.get("lastupdate")).lastupdate;
+	
+	drawLastupdate();
+	drawTasks();
 })();
 
-const draw = () => {
-	document.getElementById("message").innerHTML = "";
-	Data.tasks.map((task) => {
-		const p = document.createElement("p");
-		p.innerHTML = (Data.submission.indexOf(task.id) !== -1? "済 " : "未 ") + task.name;
-		p.title = JSON.stringify(task).replace(/,/g, "\n");
-		document.getElementById("message").appendChild(p);
-	});
+document.getElementById("reflesh").onclick = async () => {
+	await Tasks.updateTasks();
+	await Tasks.updateSubmission();
+	drawLastupdate();
+	drawTasks();
 };
 
-document.getElementById("upload").onclick = async () => {
-//	await Data.t2ScholaUpdate();
-	await Data.updateSubmission();
-	draw();
-};
+let tasks_switch_submitted = false;
 
+document.getElementById("tasks_switch").onclick = function(){
+	tasks_switch_submitted = !tasks_switch_submitted;
+	document.getElementById("tasks_switch").innerHTML = tasks_switch_submitted? "未提出の課題を表示" : "提出済みの課題を表示";
+	document.getElementById("tasks").style.display = tasks_switch_submitted? "none" : "block";
+	document.getElementById("tasks_submitted").style.display = tasks_switch_submitted? "block" : "none";
+};

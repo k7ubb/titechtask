@@ -30,7 +30,7 @@ body{
 .header p{
 	position: absolute;
 	top: -6px;
-	left: 64px;
+	left: 32px;
 }
 
 .header a.circle{
