@@ -1,4 +1,4 @@
-const Data = {
+const Tasks = {
 	courses: [],
 	tasks: [],
 	submission: [],
@@ -12,7 +12,21 @@ const Data = {
 		return "";
 	},
 	
-	t2ScholaUpdate: async function() {
+	isSubmitted: function(id) {
+		return this.submission.indexOf(id) !== -1;
+	},
+	
+	submit: function(id) {
+		!this.isSubmitted(id) && this.submission.push(id);
+		chrome.storage.local.set({ submission: this.submission });
+	},
+	
+	unsubmit: function(id) {
+		this.submission = this.submission.filter((t) => t !== id);
+		chrome.storage.local.set({ submission: this.submission });
+	},
+	
+	updateTasks: async function() {
 		this.courses = [];
 		this.tasks = [];
 		(await T2Schola.wsfunction("mod_assign_get_assignments")).courses.forEach((course) => {
@@ -53,38 +67,24 @@ const Data = {
 		});
 		chrome.storage.local.set({
 			courses: this.courses,
-			tasks: this.tasks,
+			tasks: this.tasks.sort((a, b) => a.deadline - b.deadline),
+			lastupdate: Math.floor(new Date().getTime()/1000),
 		});
 	},
 	
 	updateSubmission: async function() {
 		const userid = (await T2Schola.wsfunction("core_webservice_get_site_info")).userid;
-		let i = 0;
 		for (let task of this.tasks) {
-			if (task.type === "assignment" && this.submission.indexOf(task.id) === -1 && ++i < 10){
+			if (task.type === "assignment" && !this.isSubmitted(task.id)) {
 				const result = await T2Schola.wsfunction("mod_assign_get_submission_status", {
 					userid,
 					assignid: task.id,
 				});
 				if (result.lastattempt?.submission.status === "submitted") {
-					this.submission.push(task.id);
+					this.submit(task.id);
 				}
 			}
 		}
 		chrome.storage.local.set({ submission: this.submission });
-/*
-		for(let task of tasks){
-			if(task.type == "assignment" && submitted.indexOf(task.id) == -1){
-				(function(assignmentid){
-					console.log("mod_assign_get_submission_status");
-					updateAssignmentSubmissionStatus(token, userid, assignmentid, function(assignmentid){
-						if(submitted.indexOf(assignmentid) == -1){
-							drawTasks();
-						}
-					});
-				})(task.id);
-			}
-		}
-*/
 	},
 };
