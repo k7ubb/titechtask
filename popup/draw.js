@@ -1,54 +1,52 @@
 const formatTime = (t) => {
-	let time = new Date(t * 1000);
+	const time = new Date(t * 1000);
 	return `${time.toLocaleDateString("jp-JP")}(${["日", "月", "火", "水", "木", "金", "土"][time.getDay()]}) ${time.toLocaleTimeString("jp-JP").slice(0, -3)}`;
 };
 
-const createTaskNode = (task, isSubmitted) => {
-	let li = document.createElement("li");
-			li.className = (!isSubmitted && task.deadline - Math.floor(new Date().getTime() / 1000) < 0) && "expired";
-	
-	let p = document.createElement("p");
-			p.innerHTML = task.name;
-			li.appendChild(p);
-	
-	let span = document.createElement("span");
-			span.innerHTML = task.subject;
-			li.appendChild(span);
-	
-	let span2 = document.createElement("span");
-			span2.innerHTML = formatTime(task.deadline);
-			li.appendChild(span2);
-	
-	let del = document.createElement("a");
-			del.href = "#";
-			del.innerHTML = isSubmitted? "←" : "×";
-			del.title = isSubmitted? "未提出に戻す" : "提出済みにする";
-			li.appendChild(del);
-	
-	let div = document.createElement("div");
-			div.innerHTML = task.type;
-			task.type !== "assignment" && li.appendChild(div);
 
+const createTaskNode = (task, isSubmitted) => {
+	const li = document.createElement("li");
+	li.className = (!isSubmitted && task.deadline - Math.floor(new Date().getTime() / 1000) < 0) && "expired";
+	li.onclick = () => {
+		chrome.tabs.create({url: task.url});
+	};
+	
+	
+	const p = document.createElement("p");
+	p.innerHTML = task.name;
+	li.appendChild(p);
+	
+	const span = document.createElement("span");
+	span.innerHTML = task.subject;
+	li.appendChild(span);
+	
+	const span2 = document.createElement("span");
+	span2.innerHTML = formatTime(task.deadline);
+	li.appendChild(span2);
+	
+	const del = document.createElement("a");
+	del.href = "#";
+	del.innerHTML = isSubmitted? "←" : "×";
+	del.title = isSubmitted? "未提出に戻す" : "提出済みにする";
+	li.appendChild(del);
 	del.onclick = () => {
 		event.stopPropagation();
 		Tasks.isSubmitted(task.id)? Tasks.unsubmit(task.id) : Tasks.submit(task.id);
 		drawTasks();
 	};
 	
-	li.onclick = () => {
-		chrome.tabs.create({"url": task.url});
-	};
-	
+	const div = document.createElement("div");
+	div.innerHTML = task.type;
+	task.type !== "assignment" && li.appendChild(div);
+
 	return li;
 };
-
-
 
 
 const drawLastupdate = function() {
 	if (Tasks.lastupdate) {
 		const t = Math.floor(new Date().getTime() / 1000) - Tasks.lastupdate;
-		document.getElementById("lastupdate").innerHTML = `更新: ${
+		document.getElementById("message").innerHTML = `更新: ${
 			t < 60
 			? `${t}秒`
 			: t < 3600
@@ -59,11 +57,24 @@ const drawLastupdate = function() {
 		}前`;
 	}
 	else {
-		document.getElementById("lastupdate").innerHTML = "更新ボタンを押してください";
+		document.getElementById("message").innerHTML = "更新ボタンを押してください";
 	}
 };
 
 
+const drawLoginError = function() {
+	document.getElementById("message").innerHTML = "";
+	
+	const a = document.createElement("a");
+	a.innerHTML = "Tokyo Tech Portal";
+	a.href = "#";
+	a.onclick = () => {
+		event.preventDefault();
+		chrome.tabs.create({url: "https://portal.titech.ac.jp/"});
+	};
+	document.getElementById("message").appendChild(a);
+	document.getElementById("message").appendChild(document.createTextNode(" にログインしてください"));
+};
 
 
 const drawTasks = function() {
@@ -74,6 +85,6 @@ const drawTasks = function() {
 		document.getElementById(Tasks.isSubmitted(task.id)? "tasks_submitted" : "tasks").appendChild(createTaskNode(task, Tasks.isSubmitted(task.id)));
 	}
 	
-	chrome.action.setBadgeBackgroundColor({ "color": "#6C90C1" });
-	chrome.action.setBadgeText({ "text": String(Tasks.tasks.length - Tasks.submission.length) });
-}
+	chrome.action.setBadgeBackgroundColor({ color: "#6C90C1" });
+	chrome.action.setBadgeText({ text: String(Tasks.tasks.length - Tasks.submission.length) });
+};

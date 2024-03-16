@@ -33,6 +33,10 @@ body{
 	left: 32px;
 }
 
+.header p a{
+	color: #fff;
+}
+
 .header a.circle{
 	display: block;
 	position: absolute;
@@ -156,7 +160,7 @@ ul{
 	width: 200px;
 	max-height: 400px;
 	margin: -3px 0 0;
-	padding: 0;
+	padding: 0 0 1px;
 	overflow-x: hidden;
 	overflow-y: scroll;
 	background: var(--color-background);
@@ -224,7 +228,7 @@ li a:hover{
 
 li div{
 	position: absolute;
-	bottom: -1px;
+	top: 2px;
 	right: 2px;
 	padding: 0 4px;
 	color: var(--color-main);

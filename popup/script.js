@@ -10,10 +10,14 @@
 })();
 
 document.getElementById("reflesh").onclick = async () => {
-	await Tasks.updateTasks();
-	await Tasks.updateSubmission();
-	drawLastupdate();
-	drawTasks();
+	try {
+		await Tasks.updateTasks();
+		await Tasks.updateSubmission();
+		drawLastupdate();
+		drawTasks();
+	} catch(e) {
+		drawLoginError();
+	}
 };
 
 let tasks_switch_submitted = false;
