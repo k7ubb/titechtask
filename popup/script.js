@@ -4,20 +4,29 @@
 	Tasks.tasks = (await chrome.storage.local.get("tasks")).tasks || [];
 	Tasks.submission = (await chrome.storage.local.get("submission")).submission || [];
 	Tasks.lastupdate = (await chrome.storage.local.get("lastupdate")).lastupdate;
-	
+	Calender.calender = (await chrome.storage.local.get("calender")).calender;
 	drawLastupdate();
 	drawTasks();
+	drawCalender();
 })();
 
 document.getElementById("reflesh").onclick = async () => {
+	try {
+		await Calender.update();
+	} catch(e) {
+		console.error(e);
+		drawKyomuError();
+	}
+/*
 	try {
 		await Tasks.updateTasks();
 		await Tasks.updateSubmission();
 		drawLastupdate();
 		drawTasks();
 	} catch(e) {
-		drawLoginError();
+		drawT2ScholaError();
 	}
+*/
 };
 
 let tasks_switch_submitted = false;

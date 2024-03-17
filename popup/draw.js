@@ -62,7 +62,7 @@ const drawLastupdate = function() {
 };
 
 
-const drawLoginError = function() {
+const drawT2ScholaError = function() {
 	document.getElementById("message").innerHTML = "";
 	
 	const a = document.createElement("a");
@@ -77,6 +77,21 @@ const drawLoginError = function() {
 };
 
 
+const drawKyomuError = function() {
+	document.getElementById("message").innerHTML = "";
+	
+	const a = document.createElement("a");
+	a.innerHTML = "教務Webシステム";
+	a.href = "#";
+	a.onclick = () => {
+		event.preventDefault();
+		chrome.tabs.create({url: "https://kyomu0.gakumu.titech.ac.jp/Titech/Student/"});
+	};
+	document.getElementById("message").appendChild(a);
+	document.getElementById("message").appendChild(document.createTextNode(" を開いてください"));
+};
+
+
 const drawTasks = function() {
 	document.getElementById("tasks").innerHTML = "";
 	document.getElementById("tasks_submitted").innerHTML = "";
@@ -87,4 +102,47 @@ const drawTasks = function() {
 	
 	chrome.action.setBadgeBackgroundColor({ color: "#6C90C1" });
 	chrome.action.setBadgeText({ text: String(Tasks.tasks.length - Tasks.submission.length) });
+};
+
+
+const drawCalender = function() {
+	document.getElementById("calender_table").innerHTML = "";
+	if (!Calender.calender) { return; }
+	
+	for (let i=0; i<5; i++) {
+		let tr = document.createElement("tr");
+		let s = "<th>" + ["8:50<br>~<br>10:30", "10:45<br>~<br>12:25", "13:25<br>~<br>15:25", "15:40<br>~<br>17:20", "17:30<br>~<br>19:10"][i] + "</th>";
+		for (let j=0; j<5; j++) {
+			let subj = "";
+			let room = "";
+			loop: for (let course of Calender.calender[0].courses) {
+				for (let time of course.time) {
+					if (time.day === ["月","火","水","木","金"][j] && time.time === i+1) {
+						subj = course.title;
+						room = course.room;
+						break loop;
+					}
+				}
+			}
+			if (subj) {
+				let id;
+				for (let course of Tasks.courses) {
+					if(course.name.replace(/[【】\s]/g, "").match(subj.replace(/[【】\s]/g, ""))) {
+						id = course.id;
+					}
+				}
+				if (id) {
+					s += ("<td><a href=\"https://t2schola.titech.ac.jp/course/view.php?id=" + id + "\" target=\"_blank\"><span class=\"t2\" title=\"" + room + "\">" + subj + "</span></a></td>");
+				}
+				else {
+					s += ("<td><span title=\"" + room + "\">" + subj + "</span></td>");
+				}
+			}
+			else {
+				s += "<td></td>";
+			}
+		}
+		tr.innerHTML = s;
+		document.getElementById("calender_table").appendChild(tr);
+	}
 };
