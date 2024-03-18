@@ -10,14 +10,7 @@
 	drawCalender();
 })();
 
-document.getElementById("reflesh").onclick = async () => {
-	try {
-		await Calender.update();
-	} catch(e) {
-		console.error(e);
-		drawKyomuError();
-	}
-/*
+document.getElementById("tasks_reflesh").onclick = async () => {
 	try {
 		await Tasks.updateTasks();
 		await Tasks.updateSubmission();
@@ -26,7 +19,14 @@ document.getElementById("reflesh").onclick = async () => {
 	} catch(e) {
 		drawT2ScholaError();
 	}
-*/
+};
+document.getElementById("calender_reflesh").onclick = async () => {
+	try {
+		await Calender.update();
+	} catch(e) {
+		console.error(e);
+		drawKyomuError();
+	}
 };
 
 let tasks_switch_submitted = false;

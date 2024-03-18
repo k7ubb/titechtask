@@ -10,63 +10,181 @@
 	--color-text-reversal: #ffffff;
 }
 
-body{
-	position: relative;
+body {
 	margin: 0;
-	width: 700px;
 	background: var(--color-background2);
 }
 
-/* -------- header -------- */
-.header{
-	z-index: 65535;
-	position: relative;
+.wrap {
+	display: flex;
+	height: 400px;
+}
+
+/* -------- common -------- */
+.header {
+	display: flex;
 	height: 30px;
 	background: var(--color-main);
+	position: relative;
 	font-size: 12px;
 	color: var(--color-text-reversal);
 }
 
-.header p{
-	position: absolute;
-	top: -6px;
-	left: 32px;
+.header p {
+	margin: 0;
+	vertical-align: bottom;
 }
 
-.header p a{
+.header p a {
 	color: #fff;
 }
 
-.header a.circle{
+.header a.refresh {
 	display: block;
-	position: absolute;
-	top: 2px;
+	margin: 2px;
 	width: 24px;
 	height: 24px;
 	border: 1px solid var(--color-button-hover);
 	border-radius: 12px;
-}
-
-.header a.circle:hover{
-	background-color: var(--color-button-hover) !important;
-}
-
-.header a#reflesh{
-	left: 2px;
 	background: var(--color-button) url('reflesh.png') 4px 4px no-repeat;
 }
 
-.header a#help{
-	left: 32px;
-	background: var(--color-background);
-	color: #1dace0;
-	font: bold 18px sans-serif;
-	text-align: center;
-	line-height: 25px;
-	text-decoration: none;
+.header a.refresh:hover {
+	background-color: var(--color-button-hover) !important;
 }
 
-.header a#tasks_switch{
+
+
+/* -------- footer -------- */
+#footer {
+	padding: 4px 0;
+	height: 60px;
+	background: var(--color-main);
+}
+
+iframe {
+	display: block;
+	margin: 0 auto;
+	width: 468px;
+	height: 60px;
+	vertical-align: top;
+	border-style: none;
+	overflow: hidden;
+}
+
+/* -------- calender -------- */
+#calender {
+	width: 500px;
+	table-layout: fixed;
+	border-collapse: collapse;
+	background: var(--color-background);
+}
+
+#calender th {
+	font-size: 11px;
+	width: 40px;
+	height: 60px;
+	background: var(--color-background2);
+}
+
+#calender td {
+	height: 55px;
+}
+
+#calender td a {
+	vertical-align: middle;
+	display: block;
+	height: 49px;
+	padding: 3px;
+	background: #dbe3e7;
+	border-radius: 8px;
+	font-size: 11px;
+}
+
+/* -------- tasks -------- */
+#tasks, #tasks_submitted {
+	width: 200px;
+	max-height: calc(100% - 28px); /* header分を引く */
+	margin: -3px 0 0;
+	padding: 0 0 1px;
+	overflow-x: hidden;
+	overflow-y: scroll;
+	background: var(--color-background);
+}
+
+ul#tasks_submitted {
+	background: var(--color-background2);
+	display: none;
+}
+
+li {
+	position: relative;
+	display: block;
+	height: 60px;
+	margin-top: 2px;
+	cursor: pointer;
+	border-left: 4px solid var(--color-main);
+	border-top: 1px solid var(--color-main);
+}
+
+li p {
+	margin: 0;
+	padding-left: 2px;
+	color: var(--color-text-main);
+	width: 1000px;
+	font: bold 14px sans-serif;
+}
+
+li.expired p {
+	color: #ed7576;
+}
+
+li span {
+	display: block;
+	margin-left: 12px;
+	font-size: 12px;
+	width: 600px;
+	color: var(--color-text-main);
+}
+
+ul#tasks_submitted li span:nth-child(3)::before {
+	content: "提出済: ";
+}
+
+li a {
+	display: block;
+	position: absolute;
+	top: 20px;
+	right: 6px;
+	width: 24px;
+	height: 24px;
+	border: 1px solid var(--color-button-hover);
+	border-radius: 12px;
+	color: var(--color-button-hover);
+	font-weight: bold;
+	text-align: center;
+	line-height: 23px;
+	text-decoration: none;
+	background: var(--color-background);
+}
+
+li a:hover {
+	background: var(--color-background2);
+}
+
+li div {
+	position: absolute;
+	top: 2px;
+	right: 2px;
+	padding: 0 4px;
+	color: var(--color-main);
+	font-size: 8px;
+	border: 1px solid var(--color-main);
+	border-radius: 8px;
+	background: var(--color-background);
+}
+
+.header a#tasks_switch {
 	display: block;
 	position: absolute;
 	top: 4px;
@@ -85,176 +203,3 @@ body{
 }
 
 
-/* -------- calender -------- */
-#calender{
-	float: left;
-	position: relative;
-	width: 500px;
-	height: 400px;
-}
-
-#calender .course{
-	width: 80px;
-	height: 52px;
-	padding: 4px;
-	overflow: hidden;
-	font-size: 11px;
-	user-select: none;
-	cursor: pointer;
-	border-radius: 8px;
-}
-
-#calender_table{
-	table-layout: fixed;
-	border-spacing: 3px;
-	background: var(--color-background2);
-}
-
-#calender_table th{
-	font-size: 12px;
-}
-
-#calender_table td{
-	padding: 0;
-	width: 88px;
-	height: 60px;
-}
-
-#calender_table .course{
-	background: var(--color-main);
-}
-
-#calender_table div.dragtarget, #calender_table div.dragging{
-	width: 100%;
-	height: 100%;
-	box-sizing: border-box;
-	border: 2px dashed var(--color-background);
-	border-radius: 8px;
-	background: var(--color-background);
-}
-
-#calender_courses{
-	margin: -1px 1px -1px -1px;
-	padding: 0 6px 3px;
-	border: 2px dashed var(--color-background2);
-	overflow-x: scroll;
-}
-
-#calender_courses > div{
-	padding: 0;
-}
-
-#calender_courses .course{
-	float: left;
-	margin: 0 8px;
-	background: var(--color-main2);
-}
-
-.dragging{
-	background: var(--color-main3);
-	border-color: var(--color-main1) !important;
-}
-
-/* -------- tasks -------- */
-ul{
-	width: 200px;
-	max-height: 400px;
-	margin: -3px 0 0;
-	padding: 0 0 1px;
-	overflow-x: hidden;
-	overflow-y: scroll;
-	background: var(--color-background);
-}
-
-ul#tasks_submitted{
-	background: var(--color-background2);
-	display: none;
-}
-
-li{
-	position: relative;
-	display: block;
-	height: 60px;
-	margin-top: 2px;
-	cursor: pointer;
-	border-left: 4px solid var(--color-main);
-	border-top: 1px solid var(--color-main);
-}
-
-li p{
-	margin: 0;
-	padding-left: 2px;
-	color: var(--color-text-main);
-	width: 1000px;
-	font: bold 14px sans-serif;
-}
-
-li.expired p{
-	color: #ed7576;
-}
-
-li span{
-	display: block;
-	margin-left: 12px;
-	font-size: 12px;
-	width: 600px;
-	color: var(--color-text-main);
-}
-
-ul#tasks_submitted li span:nth-child(3)::before{
-	content: "提出済: ";
-}
-
-li a{
-	display: block;
-	position: absolute;
-	top: 20px;
-	right: 6px;
-	width: 24px;
-	height: 24px;
-	border: 1px solid var(--color-button-hover);
-	border-radius: 12px;
-	color: var(--color-button-hover);
-	font-weight: bold;
-	text-align: center;
-	line-height: 23px;
-	text-decoration: none;
-	background: var(--color-background);
-}
-
-li a:hover{
-	background: var(--color-background2);
-}
-
-li div{
-	position: absolute;
-	top: 2px;
-	right: 2px;
-	padding: 0 4px;
-	color: var(--color-main);
-	font-size: 8px;
-	border: 1px solid var(--color-main);
-	border-radius: 8px;
-	background: var(--color-background);
-}
-
-
-/* -------- footer -------- */
-#footer{
-	position: absolute;
-	top: 428px;
-	width: 100%;
-	padding: 4px 0;
-	height: 60px;
-	background: var(--color-main);
-}
-
-iframe{
-	display: block;
-	margin: 0 auto;
-	width: 468px;
-	height: 60px;
-	vertical-align: top;
-	border-style: none;
-	overflow: hidden;
-}
