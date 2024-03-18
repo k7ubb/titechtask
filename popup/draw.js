@@ -46,7 +46,7 @@ const createTaskNode = (task, isSubmitted) => {
 const drawLastupdate = function() {
 	if (Tasks.lastupdate) {
 		const t = Math.floor(new Date().getTime() / 1000) - Tasks.lastupdate;
-		document.getElementById("message").innerHTML = `更新: ${
+		document.getElementById("tasks_message").innerHTML = `更新: ${
 			t < 60
 			? `${t}秒`
 			: t < 3600
@@ -57,13 +57,13 @@ const drawLastupdate = function() {
 		}前`;
 	}
 	else {
-		document.getElementById("message").innerHTML = "更新ボタンを押してください";
+		document.getElementById("tasks_message").innerHTML = "更新ボタンを押してください";
 	}
 };
 
 
 const drawT2ScholaError = function() {
-	document.getElementById("message").innerHTML = "";
+	document.getElementById("tasks_message").innerHTML = "";
 	
 	const a = document.createElement("a");
 	a.innerHTML = "Tokyo Tech Portal";
@@ -72,13 +72,13 @@ const drawT2ScholaError = function() {
 		event.preventDefault();
 		chrome.tabs.create({url: "https://portal.titech.ac.jp/"});
 	};
-	document.getElementById("message").appendChild(a);
-	document.getElementById("message").appendChild(document.createTextNode(" にログインしてください"));
+	document.getElementById("tasks_message").appendChild(a);
+	document.getElementById("tasks_message").appendChild(document.createTextNode(" にログインしてください"));
 };
 
 
 const drawKyomuError = function() {
-	document.getElementById("message").innerHTML = "";
+	document.getElementById("calender_message").innerHTML = "";
 	
 	const a = document.createElement("a");
 	a.innerHTML = "教務Webシステム";
@@ -87,8 +87,8 @@ const drawKyomuError = function() {
 		event.preventDefault();
 		chrome.tabs.create({url: "https://kyomu0.gakumu.titech.ac.jp/Titech/Student/"});
 	};
-	document.getElementById("message").appendChild(a);
-	document.getElementById("message").appendChild(document.createTextNode(" を開いてください"));
+	document.getElementById("calender_message").appendChild(a);
+	document.getElementById("calender_message").appendChild(document.createTextNode(" を開いてください"));
 };
 
 
@@ -106,12 +106,12 @@ const drawTasks = function() {
 
 
 const drawCalender = function() {
-	document.getElementById("calender_table").innerHTML = "";
+	document.getElementById("calender").innerHTML = "";
 	if (!Calender.calender) { return; }
 	
 	for (let i=0; i<5; i++) {
 		let tr = document.createElement("tr");
-		let s = "<th>" + ["8:50<br>~<br>10:30", "10:45<br>~<br>12:25", "13:25<br>~<br>15:25", "15:40<br>~<br>17:20", "17:30<br>~<br>19:10"][i] + "</th>";
+		let s = "<th>" + ["8:50<br>~<br>10:30", "10:45<br>~<br>12:25", "13:30<br>~<br>15:10", "15:25<br>~<br>17:05", "17:15<br>~<br>18:55"][i] + "</th>";
 		for (let j=0; j<5; j++) {
 			let subj = "";
 			let room = "";
@@ -127,7 +127,7 @@ const drawCalender = function() {
 			if (subj) {
 				let id;
 				for (let course of Tasks.courses) {
-					if(course.name.replace(/[【】\s]/g, "").match(subj.replace(/[【】\s]/g, ""))) {
+					if (course.name.replace(/[【】\s]/g, "").match(subj.replace(/[【】\s]/g, ""))) {
 						id = course.id;
 					}
 				}
@@ -143,6 +143,28 @@ const drawCalender = function() {
 			}
 		}
 		tr.innerHTML = s;
-		document.getElementById("calender_table").appendChild(tr);
+		document.getElementById("calender").appendChild(tr);
 	}
+	
+	let tr = document.createElement("tr");
+	let s = "<th>集中講義等</th>";
+	for (let course of Calender.calender[0].courses) {
+		if (!course.time.length) {
+			let id;
+			for (let course_ of Tasks.courses) {
+				if (course_.name.replace(/[【】\s]/g, "").match(course.title.replace(/[【】\s]/g, ""))) {
+					id = course_.id;
+				}
+			}
+			if (id) {
+				s += ("<td><a href=\"https://t2schola.titech.ac.jp/course/view.php?id=" + id + "\" target=\"_blank\"><span class=\"t2\" title=\"" + course.room + "\">" + course.title + "</span></a></td>");
+			}
+			else {
+				s += ("<td><span title=\"" + course.room + "\">" + course.title + "</span></td>");
+			}
+	}
+	}
+	tr.innerHTML = s;
+	document.getElementById("calender").appendChild(tr);
+
 };

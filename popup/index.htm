@@ -6,25 +6,33 @@
 </head>
 
 <body>
-<div class="header">
-<a href="#" class="circle" id="reflesh"></a>
-<a href="#" id="tasks_switch">提出済みの課題を表示</a>
-<p id="message"></p>
-</div>
+<div class="wrap">
+	<div>
+		<div class="header">
+		<a href="#" class="refresh" id="calender_reflesh"></a>
+		<p id="calender_message">
+		</div>
+		<table id="calender"></table>
+	</div>
 
-<div id="calender">
-<table id="calender_table"></table>
+	<div>
+		<div class="header">
+		<a href="#" class="refresh" id="tasks_reflesh"></a>
+		<p id="tasks_message"></p>
+		<a href="#" id="tasks_switch">提出済みの課題を表示</a>
+		</div>
+		<ul id="tasks"></ul>
+		<ul id="tasks_submitted"></ul>
+	</div>
 </div>
-
-<ul id="tasks"></ul>
-<ul id="tasks_submitted"></ul>
 
 <div id="footer">
 <!--<iframe scrolling="no" id="iframe" src="https://titechtask.bb.xrea.jp/embed/?ver=3.0.7"></iframe>-->
 </div>
 
-<script type="text/javascript" src="t2schola.js"></script>
-<script type="text/javascript" src="kyomu.js"></script>
+<script type="text/javascript" src="lib/t2schola.js"></script>
+<script type="text/javascript" src="lib/kyomu.js"></script>
+
 <script type="text/javascript" src="tasks.js"></script>
 <script type="text/javascript" src="calender.js"></script>
 <script type="text/javascript" src="draw.js"></script>
