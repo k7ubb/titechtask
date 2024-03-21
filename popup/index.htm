@@ -6,28 +6,31 @@
 </head>
 
 <body>
+<div class="header">
+	<a href="#" class="button" id="calender_reflesh">教務Webシステムから時間割を取得</a>
+	<div id="calender_buttons"></div>
+	
+	<a href="#" class="button" id="tasks_switch" style="margin-left: auto;">提出済みの課題を表示</a>
+	<p id="tasks_lastupdate"></p>
+	<a href="#" id="tasks_reflesh"></a>
+</div>
+
 <div class="wrap">
 	<div>
-		<div class="header">
-		<a href="#" class="refresh" id="calender_reflesh"></a>
-		<p id="calender_message">
-		</div>
 		<table id="calender"></table>
+		<div class="calender_other_wrap">
+			<h2>その他</h2>
+			<div id="calender_other"></div>
+		</div>
 	</div>
 
 	<div>
-		<div class="header">
-		<a href="#" class="refresh" id="tasks_reflesh"></a>
-		<p id="tasks_message"></p>
-		<a href="#" id="tasks_switch">提出済みの課題を表示</a>
-		</div>
 		<ul id="tasks"></ul>
-		<ul id="tasks_submitted"></ul>
 	</div>
 </div>
 
-<div id="footer">
-<!--<iframe scrolling="no" id="iframe" src="https://titechtask.bb.xrea.jp/embed/?ver=3.0.7"></iframe>-->
+<div class="footer">
+<iframe scrolling="no" id="iframe"></iframe>
 </div>
 
 <script type="text/javascript" src="lib/t2schola.js"></script>

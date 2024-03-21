@@ -4,13 +4,17 @@ const formatTime = (t) => {
 };
 
 
-const createTaskNode = (task, isSubmitted) => {
+const createTaskNode = (task) => {
 	const li = document.createElement("li");
-	li.className = (!isSubmitted && task.deadline - Math.floor(new Date().getTime() / 1000) < 0) && "expired";
+	li.className =
+		Tasks.isSubmitted(task.id)
+		? "submitted"
+		: task.deadline - Math.floor(new Date().getTime() / 1000) < 0
+		? "expired"
+		: "";
 	li.onclick = () => {
 		chrome.tabs.create({url: task.url});
 	};
-	
 	
 	const p = document.createElement("p");
 	p.innerHTML = task.name;
@@ -26,8 +30,8 @@ const createTaskNode = (task, isSubmitted) => {
 	
 	const del = document.createElement("a");
 	del.href = "#";
-	del.innerHTML = isSubmitted? "←" : "×";
-	del.title = isSubmitted? "未提出に戻す" : "提出済みにする";
+	del.innerHTML = Tasks.isSubmitted(task.id)? "←" : "×";
+	del.title = Tasks.isSubmitted(task.id)? "未提出に戻す" : "提出済みにする";
 	li.appendChild(del);
 	del.onclick = () => {
 		event.stopPropagation();
@@ -45,21 +49,37 @@ const createTaskNode = (task, isSubmitted) => {
 
 const createCourseNode = function(course) {
 	const div = document.createElement("div");
+	const p = document.createElement("p");
+	p.innerHTML = course.title;
+	div.appendChild(p);
+	const span = document.createElement("span");
+	span.innerHTML = course.room;
+	course.room && div.appendChild(span);
+
 	for (let course_ of Tasks.courses) {
 		if (course_.name.replace(/[【】\s]/g, "").match(course.title.replace(/[【】\s]/g, ""))) {
-			div.innerHTML = `<a href="https://t2schola.titech.ac.jp/course/view.php?id=${course_.id}" target="_blank"><span title="${course.room}">${course.title}</span></a>`;
-			return div;
+			div.className = "t2";
+			div.onclick = () => {
+				chrome.tabs.create({ url: `https://t2schola.titech.ac.jp/course/view.php?id=${course_.id}` });
+			};
 		}
 	}
-	div.innerHTML = `<span title="${course.room}">${course.title}</span>`;
 	return div;
 };
 
 
-const drawLastupdate = function() {
+const drawTasks = function() {
+	document.getElementById("tasks").innerHTML = "";
+	
+	for (let task of Tasks.tasks) {
+		if (Tasks.isSubmitted(task.id) === Tasks.showSubmitted) {
+			document.getElementById("tasks").appendChild(createTaskNode(task));
+		}
+	}
+	
 	if (Tasks.lastupdate) {
 		const t = Math.floor(new Date().getTime() / 1000) - Tasks.lastupdate;
-		document.getElementById("tasks_message").innerHTML = `更新: ${
+		document.getElementById("tasks_lastupdate").innerHTML = `更新: ${
 			t < 60
 			? `${t}秒`
 			: t < 3600
@@ -69,49 +89,6 @@ const drawLastupdate = function() {
 			: `${Math.floor(t / 86400)}日`
 		}前`;
 	}
-	else {
-		document.getElementById("tasks_message").innerHTML = "更新ボタンを押してください";
-	}
-};
-
-
-const drawT2ScholaError = function() {
-	document.getElementById("tasks_message").innerHTML = "";
-	
-	const a = document.createElement("a");
-	a.innerHTML = "Tokyo Tech Portal";
-	a.href = "#";
-	a.onclick = () => {
-		event.preventDefault();
-		chrome.tabs.create({url: "https://portal.titech.ac.jp/"});
-	};
-	document.getElementById("tasks_message").appendChild(a);
-	document.getElementById("tasks_message").appendChild(document.createTextNode(" にログインしてください"));
-};
-
-
-const drawKyomuError = function() {
-	document.getElementById("calender_message").innerHTML = "";
-	
-	const a = document.createElement("a");
-	a.innerHTML = "教務Webシステム";
-	a.href = "#";
-	a.onclick = () => {
-		event.preventDefault();
-		chrome.tabs.create({url: "https://kyomu0.gakumu.titech.ac.jp/Titech/Student/"});
-	};
-	document.getElementById("calender_message").appendChild(a);
-	document.getElementById("calender_message").appendChild(document.createTextNode(" を開いてください"));
-};
-
-
-const drawTasks = function() {
-	document.getElementById("tasks").innerHTML = "";
-	document.getElementById("tasks_submitted").innerHTML = "";
-	
-	for (let task of Tasks.tasks) {
-		document.getElementById(Tasks.isSubmitted(task.id)? "tasks_submitted" : "tasks").appendChild(createTaskNode(task, Tasks.isSubmitted(task.id)));
-	}
 	
 	chrome.action.setBadgeBackgroundColor({ color: "#6C90C1" });
 	chrome.action.setBadgeText({ text: String(Tasks.tasks.length - Tasks.submission.length) });
@@ -120,17 +97,20 @@ const drawTasks = function() {
 
 const drawCalender = function() {
 	document.getElementById("calender").innerHTML = "";
-	if (!Calender.calender) { return; }
+	document.getElementById("calender_other").innerHTML = "";
+	document.getElementById("calender_buttons").innerHTML = "";
+	
+	const courses = Calender.calender? Calender.calender[Calender.quarterIndex].courses : [];
 	
 	for (let i=0; i<5; i++) {
 		const tr = document.createElement("tr");
 		const th = document.createElement("th");
-		th.innerHTML = ["8:50<br>~<br>10:30", "10:45<br>~<br>12:25", "13:30<br>~<br>15:10", "15:25<br>~<br>17:05", "17:15<br>~<br>18:55"][i];
+		th.innerHTML = ["8:50<br>〜<br>10:30", "10:45<br>〜<br>12:25", "13:30<br>〜<br>15:10", "15:25<br>〜<br>17:05", "17:15<br>〜<br>18:55"][i];
 		tr.appendChild(th);
 		
 		for (let j=0; j<5; j++) {
 			const td = document.createElement("td");
-			loop: for (let course of Calender.calender[0].courses) {
+			loop: for (let course of courses) {
 				for (let time of course.time) {
 					if (time.day === ["月","火","水","木","金"][j] && time.time === i+1) {
 						td.appendChild(createCourseNode(course));
@@ -143,18 +123,25 @@ const drawCalender = function() {
 		document.getElementById("calender").appendChild(tr);
 	}
 	
-	const tr = document.createElement("tr");
-	const th = document.createElement("th");
-	th.innerHTML = "集中講義等";
-	tr.appendChild(th);
-	
-	for (let course of Calender.calender[0].courses) {
+	for (let course of courses) {
 		if (!course.time.length) {
-			const td = document.createElement("td");
-			td.appendChild(createCourseNode(course));
-			tr.appendChild(td);
+			const div = document.createElement("div");
+			div.appendChild(createCourseNode(course));
+			document.getElementById("calender_other").appendChild(div);
 		}
 	}
-	document.getElementById("calender").appendChild(tr);
+	
+	for (let i=0; i<Calender.calender?.length; i++) {
+		const button = document.createElement("a");
+		button.href = "#";
+		button.className = i === Calender.quarterIndex && "selected";
+		button.innerHTML = Calender.calender[i].name;
+		button.onclick = function(){
+			Calender.quarterIndex = i;
+			drawCalender();
+			chrome.storage.local.set({ quarterIndex: Calender.quarterIndex });
+		};
+		document.getElementById("calender_buttons").appendChild(button);
+	}
 
 };

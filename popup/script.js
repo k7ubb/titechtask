@@ -5,7 +5,7 @@
 	Tasks.submission = (await chrome.storage.local.get("submission")).submission || [];
 	Tasks.lastupdate = (await chrome.storage.local.get("lastupdate")).lastupdate;
 	Calender.calender = (await chrome.storage.local.get("calender")).calender;
-	drawLastupdate();
+	Calender.quarterIndex = (await chrome.storage.local.get("quarterIndex")).quarterIndex || 0;
 	drawTasks();
 	drawCalender();
 })();
@@ -13,30 +13,29 @@
 document.getElementById("tasks_reflesh").onclick = async () => {
 	try {
 		await Tasks.updateTasks();
+		drawTasks();
 		await Tasks.updateSubmission();
-		drawLastupdate();
 		drawTasks();
 	} catch(e) {
-		alert("Tokyo Tech Portalにログインしてください");
 		console.error(e);
-//		drawT2ScholaError();
+		alert("課題の取得に失敗しました。\nTokyo Tech Portalにログインしてから、再度実行してください。");
 	}
 };
+
 document.getElementById("calender_reflesh").onclick = async () => {
 	try {
 		await Calender.update();
 		drawCalender();
 	} catch(e) {
-		alert("一度教務webを開いてください");
-//		drawKyomuError();
+		console.error(e);
+		alert("時間割の取得に失敗しました。\n一度教務Webシステムを開いてから、再度実行してください。");
 	}
 };
 
-let tasks_switch_submitted = false;
-
 document.getElementById("tasks_switch").onclick = function(){
-	tasks_switch_submitted = !tasks_switch_submitted;
+	Tasks.showSubmitted = !Tasks.showSubmitted;
+	drawTasks();
 	document.getElementById("tasks_switch").innerHTML = tasks_switch_submitted? "未提出の課題を表示" : "提出済みの課題を表示";
-	document.getElementById("tasks").style.display = tasks_switch_submitted? "none" : "block";
-	document.getElementById("tasks_submitted").style.display = tasks_switch_submitted? "block" : "none";
 };
+
+document.getElementById("iframe").src = `http://bb.xrea.jp/titech/embed/?ver=${chrome.runtime.getManifest().version}${chrome.runtime.id !== "odfihbhakcfillnjihnjhilbpjmhnhml"? "&test=true" : ""}`;
