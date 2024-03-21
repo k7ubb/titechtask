@@ -66,24 +66,29 @@ const Tasks = {
 				deadline: workshop.submissionend,
 			});
 		});
+		this.lastupdate = Math.floor(new Date().getTime()/1000);
 		chrome.storage.local.set({
 			courses: this.courses,
 			tasks: this.tasks.sort((a, b) => a.deadline - b.deadline),
-			lastupdate: Math.floor(new Date().getTime()/1000),
+			lastupdate: this.lastupdate,
 		});
 	},
 	
 	updateSubmission: async function() {
 		const userid = (await T2Schola.wsfunction("core_webservice_get_site_info")).userid;
+		const fetches = [];
 		for (let task of this.tasks) {
 			if (task.type === "assignment" && !this.isSubmitted(task.id)) {
-				const result = await T2Schola.wsfunction("mod_assign_get_submission_status", {
+				fetches.push(T2Schola.wsfunction("mod_assign_get_submission_status", {
 					userid,
 					assignid: task.id,
-				});
-				if (result.lastattempt?.submission.status === "submitted") {
-					this.submit(task.id);
-				}
+				}));
+			}
+		}
+		const results = await Promise.all(fetches);
+		for (result of results) {
+			if (result.lastattempt?.submission.status === "submitted") {
+				this.submit(result.lastattempt.submission.assignment);
 			}
 		}
 		chrome.storage.local.set({ submission: this.submission });

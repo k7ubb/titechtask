@@ -43,6 +43,19 @@ const createTaskNode = (task, isSubmitted) => {
 };
 
 
+const createCourseNode = function(course) {
+	const div = document.createElement("div");
+	for (let course_ of Tasks.courses) {
+		if (course_.name.replace(/[【】\s]/g, "").match(course.title.replace(/[【】\s]/g, ""))) {
+			div.innerHTML = `<a href="https://t2schola.titech.ac.jp/course/view.php?id=${course_.id}" target="_blank"><span title="${course.room}">${course.title}</span></a>`;
+			return div;
+		}
+	}
+	div.innerHTML = `<span title="${course.room}">${course.title}</span>`;
+	return div;
+};
+
+
 const drawLastupdate = function() {
 	if (Tasks.lastupdate) {
 		const t = Math.floor(new Date().getTime() / 1000) - Tasks.lastupdate;
@@ -110,61 +123,38 @@ const drawCalender = function() {
 	if (!Calender.calender) { return; }
 	
 	for (let i=0; i<5; i++) {
-		let tr = document.createElement("tr");
-		let s = "<th>" + ["8:50<br>~<br>10:30", "10:45<br>~<br>12:25", "13:30<br>~<br>15:10", "15:25<br>~<br>17:05", "17:15<br>~<br>18:55"][i] + "</th>";
+		const tr = document.createElement("tr");
+		const th = document.createElement("th");
+		th.innerHTML = ["8:50<br>~<br>10:30", "10:45<br>~<br>12:25", "13:30<br>~<br>15:10", "15:25<br>~<br>17:05", "17:15<br>~<br>18:55"][i];
+		tr.appendChild(th);
+		
 		for (let j=0; j<5; j++) {
-			let subj = "";
-			let room = "";
+			const td = document.createElement("td");
 			loop: for (let course of Calender.calender[0].courses) {
 				for (let time of course.time) {
 					if (time.day === ["月","火","水","木","金"][j] && time.time === i+1) {
-						subj = course.title;
-						room = course.room;
+						td.appendChild(createCourseNode(course));
 						break loop;
 					}
 				}
 			}
-			if (subj) {
-				let id;
-				for (let course of Tasks.courses) {
-					if (course.name.replace(/[【】\s]/g, "").match(subj.replace(/[【】\s]/g, ""))) {
-						id = course.id;
-					}
-				}
-				if (id) {
-					s += ("<td><a href=\"https://t2schola.titech.ac.jp/course/view.php?id=" + id + "\" target=\"_blank\"><span class=\"t2\" title=\"" + room + "\">" + subj + "</span></a></td>");
-				}
-				else {
-					s += ("<td><span title=\"" + room + "\">" + subj + "</span></td>");
-				}
-			}
-			else {
-				s += "<td></td>";
-			}
+			tr.appendChild(td);
 		}
-		tr.innerHTML = s;
 		document.getElementById("calender").appendChild(tr);
 	}
 	
-	let tr = document.createElement("tr");
-	let s = "<th>集中講義等</th>";
+	const tr = document.createElement("tr");
+	const th = document.createElement("th");
+	th.innerHTML = "集中講義等";
+	tr.appendChild(th);
+	
 	for (let course of Calender.calender[0].courses) {
 		if (!course.time.length) {
-			let id;
-			for (let course_ of Tasks.courses) {
-				if (course_.name.replace(/[【】\s]/g, "").match(course.title.replace(/[【】\s]/g, ""))) {
-					id = course_.id;
-				}
-			}
-			if (id) {
-				s += ("<td><a href=\"https://t2schola.titech.ac.jp/course/view.php?id=" + id + "\" target=\"_blank\"><span class=\"t2\" title=\"" + course.room + "\">" + course.title + "</span></a></td>");
-			}
-			else {
-				s += ("<td><span title=\"" + course.room + "\">" + course.title + "</span></td>");
-			}
+			const td = document.createElement("td");
+			td.appendChild(createCourseNode(course));
+			tr.appendChild(td);
+		}
 	}
-	}
-	tr.innerHTML = s;
 	document.getElementById("calender").appendChild(tr);
 
 };
