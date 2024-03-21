@@ -39,7 +39,6 @@ const convertCourseElement = (timeStr, codeStr, titleStr, teacherStr) => {
 
 const Calender = {
 	calender: undefined,
-	lastupdate: undefined,
 	
 	tags: [
 		[
@@ -99,9 +98,18 @@ const Calender = {
 				}
 			});
 		}
+		/*
+		this.calender[0].courses.push({
+			"time": [],
+			"code": "ENR.Z492",
+			"title": "エネルギー講究F1 ",
+			"teacher": "指導教員",
+			"room": ""
+		});
+		*/
+		
 		chrome.storage.local.set({
 			calender: this.calender,
-			lastupdate: Math.floor(new Date().getTime()/1000),
 		});
 	},
 	

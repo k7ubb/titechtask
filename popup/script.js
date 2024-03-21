@@ -17,15 +17,18 @@ document.getElementById("tasks_reflesh").onclick = async () => {
 		drawLastupdate();
 		drawTasks();
 	} catch(e) {
-		drawT2ScholaError();
+		alert("Tokyo Tech Portalにログインしてください");
+		console.error(e);
+//		drawT2ScholaError();
 	}
 };
 document.getElementById("calender_reflesh").onclick = async () => {
 	try {
 		await Calender.update();
+		drawCalender();
 	} catch(e) {
-		console.error(e);
-		drawKyomuError();
+		alert("一度教務webを開いてください");
+//		drawKyomuError();
 	}
 };
 

@@ -91,7 +91,7 @@ iframe {
 	height: 55px;
 }
 
-#calender td a {
+#calender td span {
 	vertical-align: middle;
 	display: block;
 	height: 49px;
@@ -186,9 +186,6 @@ li div {
 
 .header a#tasks_switch {
 	display: block;
-	position: absolute;
-	top: 4px;
-	right: 2px;
 	padding: 0 6px;
 	color: var(--color-main);
 	font: bold 14px sans-serif;
