@@ -3,6 +3,7 @@ const Tasks = {
 	tasks: [],
 	submission: [],
 	lastupdate: undefined,
+	showSubmitted: false,
 	
 	getCourseNameById: function(id) {
 		for (let course of this.courses) {

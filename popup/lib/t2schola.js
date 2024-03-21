@@ -2,7 +2,7 @@ const T2Schola = {
 	token: undefined,
 	
 	updateToken: async function() {
-		this.console("T2Schola: updateToken");
+		console.log("T2Schola: updateToken");
 		const response = await fetch("https://t2schola.titech.ac.jp/admin/tool/mobile/launch.php?service=moodle_mobile_app&passport=14029&urlscheme=mmt2schola");
 		if (response.url.match("portal.nap.gsic.titech.ac.jp")) {
 			throw new Error("Tokyo Tech Portalにログインしてください");
@@ -15,7 +15,7 @@ const T2Schola = {
 	},
 	
 	wsfunction: async function(wsfunction, query) {
-		this.console(`T2Schola: ${wsfunction}`);
+		console.log(`T2Schola: ${wsfunction}`);
 		try {
 			const response = await fetch(`https://t2schola.titech.ac.jp/webservice/rest/server.php?${
 				new URLSearchParams({
@@ -41,12 +41,6 @@ const T2Schola = {
 			} catch (e) {
 				throw new Error(e);
 			}
-		}
-	},
-		
-	console: function(text) {
-		if (chrome.runtime.id !== "odfihbhakcfillnjihnjhilbpjmhnhml") {
-			console.log(text);
 		}
 	},
 };
