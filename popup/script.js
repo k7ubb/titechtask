@@ -18,7 +18,6 @@ document.getElementById("tasks_reflesh").onclick = async () => {
 	try {
 		setLoading(true);
 		await Tasks.updateTasks();
-		drawTasks();
 		await Tasks.updateSubmission();
 		drawTasks();
 	} catch(e) {
