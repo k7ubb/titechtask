@@ -1,4 +1,7 @@
 (async () => {
+	if ((await chrome.storage.local.get("lastupdate")).lastupdate < 1711092600) {
+		await chrome.storage.local.clear();
+	}
 	T2Schola.token = (await chrome.storage.local.get("token")).token;
 	Tasks.courses = (await chrome.storage.local.get("courses")).courses || [];
 	Tasks.tasks = (await chrome.storage.local.get("tasks")).tasks || [];
