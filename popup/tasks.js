@@ -77,6 +77,22 @@ const Tasks = {
 	
 	updateSubmission: async function() {
 		const userid = (await T2Schola.wsfunction("core_webservice_get_site_info")).userid;
+		for (let task of this.tasks) {
+			if (task.type === "assignment" && !this.isSubmitted(task.id)) {
+				const result = await T2Schola.wsfunction("mod_assign_get_submission_status", {
+					userid,
+					assignid: task.id,
+				});
+				if (result.lastattempt?.submission.status === "submitted") {
+					this.submit(task.id);
+				}
+			}
+		}
+		chrome.storage.local.set({ submission: this.submission });
+	},
+/*
+	updateSubmission: async function() {
+		const userid = (await T2Schola.wsfunction("core_webservice_get_site_info")).userid;
 		const fetches = [];
 		for (let task of this.tasks) {
 			if (task.type === "assignment" && !this.isSubmitted(task.id)) {
@@ -94,4 +110,5 @@ const Tasks = {
 		}
 		chrome.storage.local.set({ submission: this.submission });
 	},
+*/
 };
