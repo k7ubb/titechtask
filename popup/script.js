@@ -44,7 +44,7 @@ document.getElementById("calender_reflesh").onclick = async () => {
 document.getElementById("tasks_switch").onclick = () => {
 	Tasks.showSubmitted = !Tasks.showSubmitted;
 	drawTasks();
-	document.getElementById("tasks_switch").innerHTML = tasks_switch_submitted? "未提出の課題を表示" : "提出済みの課題を表示";
+	document.getElementById("tasks_switch").innerHTML = Tasks.showSubmitted? "未提出の課題を表示" : "提出済みの課題を表示";
 };
 
 document.getElementById("iframe").src = `http://bb.xrea.jp/titech/embed/?ver=${chrome.runtime.getManifest().version}${chrome.runtime.id !== "odfihbhakcfillnjihnjhilbpjmhnhml"? "&test=true" : ""}`;
