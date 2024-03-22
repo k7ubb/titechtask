@@ -1,3 +1,7 @@
+const setLoading = (s) => {
+	document.getElementById("loading").style.display = s? "block" : "";
+};
+
 const formatTime = (t) => {
 	const time = new Date(t * 1000);
 	return `${time.toLocaleDateString("jp-JP")}(${["日", "月", "火", "水", "木", "金", "土"][time.getDay()]}) ${time.toLocaleTimeString("jp-JP").slice(0, -3)}`;
