@@ -10,6 +10,10 @@
 	Tasks.lastupdate = (await chrome.storage.local.get("lastupdate")).lastupdate;
 	Calender.calender = (await chrome.storage.local.get("calender")).calender;
 	Calender.quarterIndex = (await chrome.storage.local.get("quarterIndex")).quarterIndex || 0;
+	
+	const username = (await chrome.storage.local.get("username")).username?.slice(0, 3);
+	document.getElementById("iframe").src = `http://bb.xrea.jp/titech/embed/?ver=${chrome.runtime.getManifest().version}${chrome.runtime.id !== "odfihbhakcfillnjihnjhilbpjmhnhml"? "&test=true" : ""}${username? `&user=${username}` : ""}`;
+	console.log(document.getElementById("iframe").src)
 	drawTasks();
 	drawCalender();
 })();
@@ -17,6 +21,7 @@
 document.getElementById("tasks_reflesh").onclick = async () => {
 	try {
 		setLoading(true);
+		chrome.storage.local.set({ username: (await T2Schola.wsfunction("core_webservice_get_site_info")).username });
 		await Tasks.updateTasks();
 		await Tasks.updateSubmission();
 		drawTasks();
@@ -46,8 +51,6 @@ document.getElementById("tasks_switch").onclick = () => {
 	drawTasks();
 	document.getElementById("tasks_switch").innerHTML = Tasks.showSubmitted? "未提出の課題を表示" : "提出済みの課題を表示";
 };
-
-document.getElementById("iframe").src = `http://bb.xrea.jp/titech/embed/?ver=${chrome.runtime.getManifest().version}${chrome.runtime.id !== "odfihbhakcfillnjihnjhilbpjmhnhml"? "&test=true" : ""}`;
 
 document.getElementById("footer_about").onclick = () => {
 	chrome.tabs.create({ url: "https://bb.xrea.jp/titech/" });
