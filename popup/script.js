@@ -26,8 +26,7 @@ document.getElementById("tasks_reflesh").onclick = async () => {
 		await Tasks.updateSubmission();
 		drawTasks();
 	} catch(e) {
-		console.error(e);
-		alert("課題の取得に失敗しました。\nTokyo Tech Portalにログインしてから、再度実行してください。");
+		alert(`課題の取得に失敗しました。\n${e.message}`);
 	} finally {
 		setLoading(false);
 	}
@@ -39,8 +38,7 @@ document.getElementById("calender_reflesh").onclick = async () => {
 		await Calender.update();
 		drawCalender();
 	} catch(e) {
-		console.error(e);
-		alert("時間割の取得に失敗しました。\n一度教務Webシステムを開いてから、再度実行してください。");
+		alert(`時間割の取得に失敗しました。\n${e.message}`);
 	} finally {
 		setLoading(false);
 	}

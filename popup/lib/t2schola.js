@@ -5,7 +5,7 @@ const T2Schola = {
 		console.log("T2Schola: updateToken");
 		const response = await fetch("https://t2schola.titech.ac.jp/admin/tool/mobile/launch.php?service=moodle_mobile_app&passport=14029&urlscheme=mmt2schola");
 		if (response.url.match("portal.nap.gsic.titech.ac.jp")) {
-			throw new Error("Tokyo Tech Portalにログインしてください");
+			throw new Error("東工大ポータルにログインしてから、再度ボタンを押してください。");
 		}
 		const launchapp = new DOMParser().parseFromString(await response.text(), "text/html").getElementById("launchapp");
 		const token_unformat = launchapp.href.match(/^mmt2schola\:\/\/token=(.*)$/)[1];
@@ -39,7 +39,7 @@ const T2Schola = {
 				await this.updateToken();
 				return this.wsfunction(wsfunction, query);
 			} catch (e) {
-				throw new Error(e);
+				throw e;
 			}
 		}
 	},
