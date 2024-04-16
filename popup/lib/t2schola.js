@@ -11,7 +11,7 @@ const T2Schola = {
 		const token_unformat = launchapp.href.match(/^mmt2schola\:\/\/token=(.*)$/)[1];
 		const token = atob(token_unformat).split(":::")[1];
 		this.token = token;
-		chrome.storage.local.set({token});
+		chrome.storage.sync.set({ token });
 	},
 	
 	wsfunction: async function(wsfunction, query) {
