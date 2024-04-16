@@ -100,7 +100,7 @@ const Calender = {
 			});
 		}
 		
-		chrome.storage.local.set({
+		chrome.storage.sync.set({
 			calender: this.calender,
 		});
 	},
