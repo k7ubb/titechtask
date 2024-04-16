@@ -13,7 +13,7 @@
 		"https://t2schola.titech.ac.jp/*"
 	],
 	"icons": {
-		"128": "icons/default.png"
+		"128": "icon.png"
 	},
 	"background": {
 		"service_worker" : "background.js"
