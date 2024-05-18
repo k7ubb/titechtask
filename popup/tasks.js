@@ -1,12 +1,8 @@
 const Tasks = {
-	courses: [],
-	tasks: [],
-	submission: [],
-	lastupdate: undefined,
 	showSubmitted: false,
 	
 	getCourseNameById: function(id) {
-		for (let course of this.courses) {
+		for (let course of Storage.get("courses")) {
 			if (course.id === id) {
 				return course.name;
 			}
@@ -15,29 +11,29 @@ const Tasks = {
 	},
 	
 	isSubmitted: function(id) {
-		return this.submission.indexOf(id) !== -1;
+		return Storage.get("submission").indexOf(id) !== -1;
 	},
 	
 	submit: function(id) {
-		!this.isSubmitted(id) && this.submission.push(id);
-		chrome.storage.sync.set({ submission: this.submission });
+		if (this.isSubmitted(id)) {
+			Storage.set("submission", [...Storage.get("submission"), id]);
+		}
 	},
 	
 	unsubmit: function(id) {
-		this.submission = this.submission.filter((t) => t !== id);
-		chrome.storage.sync.set({ submission: this.submission });
+		Storage.set("submission", Storage.get("submission").filter((t) => t !== id));
 	},
 	
 	updateTasks: async function() {
-		this.courses = [];
-		this.tasks = [];
+		const courses = [];
+		const tasks = [];
 		(await T2Schola.wsfunction("mod_assign_get_assignments")).courses.forEach((course) => {
-			this.courses.push({
+			courses.push({
 				name: course.fullname.split(/ \/ /)[0],
 				id:   course.id,
 			});
 			course.assignments.forEach((assignment) => {
-				this.tasks.push({
+				tasks.push({
 					type:     "assignment",
 					subject:  course.fullname.split(/ \/ /)[0],
 					id:       assignment.id,
@@ -48,7 +44,7 @@ const Tasks = {
 			});
 		});
 		(await T2Schola.wsfunction("mod_quiz_get_quizzes_by_courses")).quizzes.forEach((quiz) => {
-			this.tasks.push({
+			tasks.push({
 				type:     "quiz",
 				subject:  this.getCourseNameById(quiz.course),
 				id:       quiz.id,
@@ -58,7 +54,7 @@ const Tasks = {
 			});
 		});
 		(await T2Schola.wsfunction("mod_workshop_get_workshops_by_courses")).workshops.forEach((workshop) => {
-			this.tasks.push({
+			tasks.push({
 				type:     "workshop",
 				subject:  this.getCourseNameById(workshop.course),
 				id:       workshop.id,
@@ -67,17 +63,14 @@ const Tasks = {
 				deadline: workshop.submissionend,
 			});
 		});
-		this.lastupdate = Math.floor(new Date().getTime()/1000);
-		chrome.storage.sync.set({
-			courses: this.courses,
-			tasks: this.tasks.sort((a, b) => a.deadline - b.deadline),
-			lastupdate: this.lastupdate,
-		});
+		Storage.set("lastupdate", Math.floor(new Date().getTime()/1000));
+		Storage.set("courses", courses);
+		Storage.set("tasks", tasks);
 	},
 	
 	updateSubmission: async function() {
 		const userid = (await T2Schola.wsfunction("core_webservice_get_site_info")).userid;
-		for (let task of this.tasks) {
+		for (let task of Storage.get("tasks")) {
 			if (task.type === "assignment" && !this.isSubmitted(task.id)) {
 				const result = await T2Schola.wsfunction("mod_assign_get_submission_status", {
 					userid,
@@ -88,7 +81,6 @@ const Tasks = {
 				}
 			}
 		}
-		chrome.storage.sync.set({ submission: this.submission });
 	},
 /*
 	updateSubmission: async function() {

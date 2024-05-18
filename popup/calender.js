@@ -38,9 +38,6 @@ const convertCourseElement = (timeStr, codeStr, titleStr, teacherStr) => {
 
 
 const Calender = {
-	calender: undefined,
-	quarterIndex: undefined,
-	
 	tags: [
 		[
 			{ className: "tdQuarter1", quarter: 0 },
@@ -59,6 +56,7 @@ const Calender = {
 	update: async function() {
 		const result = await Kyomu.fetch("https://kyomu0.gakumu.titech.ac.jp/Titech/Student/%E7%A7%91%E7%9B%AE%E7%94%B3%E5%91%8A/PID1_0.aspx");
 		const quarterCheck = result.getElementsByClassName("contentsTable01")[0].children[1];
+		const calender = Storage.get("calender");
 		let semester;
 		if (quarterCheck.innerText.match("1Q")) {
 			semester = 0;
@@ -81,7 +79,7 @@ const Calender = {
 			Array.from(result.getElementsByClassName(tag.className)).forEach(element => {
 				// 集中講義等以外の場合
 				if (element.getAttribute("data-jwc")) {
-					this.calender[tag.quarter].courses.push(convertCourseElement(
+					calender[tag.quarter].courses.push(convertCourseElement(
 						element.children[3].innerText, // 曜日・時限
 						element.children[2].innerText, // 科目コード
 						element.children[0].innerText, // 授業科目名
@@ -90,7 +88,7 @@ const Calender = {
 				}
 				// 集中講義等の場合
 				else {
-					this.calender[tag.quarter].courses.push(convertCourseElement(
+					calender[tag.quarter].courses.push(convertCourseElement(
 						element.nextSibling.innerText, // 曜日・時限
 						element.nextSibling.nextSibling.nextSibling.innerText, // 科目コード
 						element.nextSibling.nextSibling.nextSibling.nextSibling.nextSibling.firstElementChild.firstElementChild.innerText, // 授業科目名
@@ -100,9 +98,7 @@ const Calender = {
 			});
 		}
 		
-		chrome.storage.sync.set({
-			calender: this.calender,
-		});
+		storage.set("calender", calender);
 	},
 	
 };

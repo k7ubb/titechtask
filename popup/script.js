@@ -1,13 +1,6 @@
 (async () => {
-	T2Schola.token = (await chrome.storage.sync.get("token")).token;
-	Tasks.courses = (await chrome.storage.sync.get("courses")).courses || [];
-	Tasks.tasks = (await chrome.storage.sync.get("tasks")).tasks || [];
-	Tasks.submission = (await chrome.storage.sync.get("submission")).submission || [];
-	Tasks.lastupdate = (await chrome.storage.sync.get("lastupdate")).lastupdate;
-	Calender.calender = (await chrome.storage.sync.get("calender")).calender;
-	Calender.quarterIndex = (await chrome.storage.sync.get("quarterIndex")).quarterIndex || 0;
-	
-	const username = (await chrome.storage.sync.get("username")).username?.slice(0, 3);
+	Storage.init();
+	const username = Storage.get("username").slice(0, 3);
 	document.getElementById("iframe").src = `https://bb.xrea.jp/titech/embed/?ver=${chrome.runtime.getManifest().version}${chrome.runtime.id !== "odfihbhakcfillnjihnjhilbpjmhnhml"? "&test=true" : ""}${username? `&user=${username}` : ""}`;
 	drawTasks();
 	drawCalender();
@@ -16,7 +9,7 @@
 document.getElementById("tasks_reflesh").onclick = async () => {
 	try {
 		setLoading(true);
-		chrome.storage.sync.set({ username: (await T2Schola.wsfunction("core_webservice_get_site_info")).username });
+		Storage.set("username", (await T2Schola.wsfunction("core_webservice_get_site_info")).username);
 		await Tasks.updateTasks();
 		await Tasks.updateSubmission();
 		drawTasks();

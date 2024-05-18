@@ -75,7 +75,7 @@ const createCourseNode = function(course) {
 const drawTasks = function() {
 	document.getElementById("tasks").innerHTML = "";
 	
-	for (let task of Tasks.tasks) {
+	for (let task of Storage.get("tasks")) {
 		if (Tasks.isSubmitted(task.id) === Tasks.showSubmitted) {
 			document.getElementById("tasks").appendChild(createTaskNode(task));
 		}
@@ -95,7 +95,7 @@ const drawTasks = function() {
 	}
 	
 	chrome.action.setBadgeBackgroundColor({ color: "#6C90C1" });
-	chrome.action.setBadgeText({ text: String(Tasks.tasks.length - Tasks.submission.length) });
+	chrome.action.setBadgeText({ text: String(Storage.get("tasks").length - Storage.get("submission").length) });
 };
 
 
@@ -104,7 +104,7 @@ const drawCalender = function() {
 	document.getElementById("calender_other").innerHTML = "";
 	document.getElementById("calender_buttons").innerHTML = "";
 	
-	const courses = Calender.calender? Calender.calender[Calender.quarterIndex].courses : [];
+	const courses = Storage.get("calender").calender?[Calender.quarterIndex].courses : [];
 	
 	for (let i=0; i<5; i++) {
 		const tr = document.createElement("tr");

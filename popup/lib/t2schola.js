@@ -1,5 +1,4 @@
 const T2Schola = {
-	token: undefined,
 	
 	updateToken: async function() {
 		console.log("T2Schola: updateToken");
@@ -9,18 +8,16 @@ const T2Schola = {
 		}
 		const launchapp = new DOMParser().parseFromString(await response.text(), "text/html").getElementById("launchapp");
 		const token_unformat = launchapp.href.match(/^mmt2schola\:\/\/token=(.*)$/)[1];
-		const token = atob(token_unformat).split(":::")[1];
-		this.token = token;
-		chrome.storage.sync.set({ token });
+		Storage.set("token", atob(token_unformat).split(":::")[1]);
 	},
 	
 	wsfunction: async function(wsfunction, query) {
-		console.log(`T2Schola: ${wsfunction}`);
+//		console.log(`T2Schola: ${wsfunction}`);
 		try {
 			const response = await fetch(`https://t2schola.titech.ac.jp/webservice/rest/server.php?${
 				new URLSearchParams({
 					moodlewsrestformat: "json",
-					wstoken: this.token,
+					wstoken: Storage.get("token"),
 					wsfunction,
 					...query
 				})
