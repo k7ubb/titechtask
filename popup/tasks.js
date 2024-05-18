@@ -20,12 +20,12 @@ const Tasks = {
 	
 	submit: function(id) {
 		!this.isSubmitted(id) && this.submission.push(id);
-		chrome.storage.sync.set({ submission: this.submission });
+		chrome.storage.local.set({ submission: this.submission });
 	},
 	
 	unsubmit: function(id) {
 		this.submission = this.submission.filter((t) => t !== id);
-		chrome.storage.sync.set({ submission: this.submission });
+		chrome.storage.local.set({ submission: this.submission });
 	},
 	
 	updateTasks: async function() {
@@ -68,7 +68,7 @@ const Tasks = {
 			});
 		});
 		this.lastupdate = Math.floor(new Date().getTime()/1000);
-		chrome.storage.sync.set({
+		chrome.storage.local.set({
 			courses: this.courses,
 			tasks: this.tasks.sort((a, b) => a.deadline - b.deadline),
 			lastupdate: this.lastupdate,
@@ -88,7 +88,7 @@ const Tasks = {
 				}
 			}
 		}
-		chrome.storage.sync.set({ submission: this.submission });
+		chrome.storage.local.set({ submission: this.submission });
 	},
 /*
 	updateSubmission: async function() {
@@ -108,7 +108,7 @@ const Tasks = {
 				this.submit(result.lastattempt.submission.assignment);
 			}
 		}
-		chrome.storage.sync.set({ submission: this.submission });
+		chrome.storage.local.set({ submission: this.submission });
 	},
 */
 };
